@@ -57,8 +57,8 @@ const I18N = {
         langGroupTitle: "Язык интерфейса / Language",
         langLabel: "Выберите язык / Select language:",
         langOptions: ["Русский (RU)", "English (EN)"],
-        refreshButton: "🔄  Применить и обновить окно",
-        langHintText: "💡 Язык сохраняется сразу. Нажмите «Обновить», чтобы перерисовать окно.",
+        reloadSwitchLabel: "Обновить окно на выбранном языке",
+        langHintText: "💡 При смене языка нажмите OK — окно мгновенно откроется на новом языке.",
         warningTitle: "⚠  Внимание",
         warningText: "Нейросеть ищет пузыри только с текстом. Не стирайте текст перед сканированием.",
         paramsTitle: "Параметры сканирования",
@@ -92,8 +92,8 @@ const I18N = {
         langGroupTitle: "Language / Язык интерфейса",
         langLabel: "Select language / Выберите язык:",
         langOptions: ["Русский (RU)", "English (EN)"],
-        refreshButton: "🔄  Apply & Reload Dialog",
-        langHintText: "💡 Language is saved on selection. Click 'Reload' to refresh this window.",
+        reloadSwitchLabel: "Reload dialog in selected language",
+        langHintText: "💡 Change language and click OK to immediately reload this dialog.",
         warningTitle: "⚠  Important",
         warningText: "The AI detects speech bubbles containing text. Do not erase text before scanning.",
         paramsTitle: "Detection Settings",
@@ -229,7 +229,7 @@ async function processSpreads() {
 
         let col = dialog.addColumn();
 
-        // 1. БЛОК ВЫБОРА ЯЗЫКА НА САМОМ ВЕРХУ
+        // 1. БЛОК ВЫБОРА ЯЗЫКА НА САМОМ ВЕРХУ С РАЗДЕЛИТЕЛЕМ
         let langGroup = col.addGroup("🌐  " + t.langGroupTitle);
         langGroup.enableSeparator = true;
 
@@ -237,13 +237,12 @@ async function processSpreads() {
         let langRadio = langGroup.addRadioGroup(t.langLabel, t.langOptions, initialLangIndex);
         langRadio.isFullWidth = true;
 
-        let reloadBtnSet = langGroup.addButtonSet("", [t.refreshButton]);
-        reloadBtnSet.isFullWidth = true;
+        let reloadSwitch = langGroup.addSwitch(t.reloadSwitchLabel, false);
 
         let langHint = langGroup.addStaticText("", t.langHintText);
         langHint.isFullWidth = true;
 
-        // 2. БЛОК ПРЕДУПРЕЖДЕНИЯ
+        // 2. БЛОК ПРЕДУПРЕЖДЕНИЯ С РАЗДЕЛИТЕЛЕМ
         let infoGroup = col.addGroup(t.warningTitle);
         infoGroup.enableSeparator = true;
         let desc = infoGroup.addStaticText("", t.warningText);
@@ -271,27 +270,15 @@ async function processSpreads() {
 
         let groupSwitch = group.addSwitch(t.groupSwitchLabel, savedSettings.groupFrames !== false);
 
-        let triggerReload = false;
-
         radio.onValueChangedHandler = function() {
             pagesText.isEnabled = (radio.selectedIndex === 2);
         };
 
         langRadio.onValueChangedHandler = function() {
             let newLang = (langRadio.selectedIndex === 1) ? "en" : "ru";
-            savedSettings.lang = newLang;
-            persistConfig(savedSettings);
-        };
-
-        reloadBtnSet.onValueChangedHandler = function() {
-            let newLang = (langRadio.selectedIndex === 1) ? "en" : "ru";
-            savedSettings.lang = newLang;
-            savedSettings.mode = radio.selectedIndex;
-            savedSettings.pages = pagesText.text || "";
-            savedSettings.confidence = Math.round(confEditor.value);
-            savedSettings.groupFrames = Boolean(groupSwitch.value);
-            persistConfig(savedSettings);
-            triggerReload = true;
+            if (newLang !== savedSettings.lang) {
+                reloadSwitch.value = true;
+            }
         };
         
         let result = dialog.runModal();
@@ -311,12 +298,12 @@ async function processSpreads() {
         savedSettings.lang = selectedLang;
         persistConfig(savedSettings);
 
-        // Если пользователь нажал кнопку перезагрузки или сменил язык в окне и нажал перезагрузить
-        if (triggerReload) {
-            continue;
+        // Если включен тумблер перезагрузки или язык изменился
+        if (reloadSwitch.value) {
+            continue; // Перезапускаем цикл диалога на новом языке
         }
 
-        // Пользователь нажал OK — переходим к сканированию
+        // Пользователь нажал OK для запуска сканирования
         userCompletedDialog = true;
         t = I18N[selectedLang];
 
