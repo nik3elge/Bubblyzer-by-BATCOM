@@ -6,8 +6,8 @@ import time
 # Ensure UTF-8 output in Windows console to prevent UnicodeEncodeError
 if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+        if sys.stdout: sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        if sys.stderr: sys.stderr.reconfigure(encoding='utf-8', errors='replace')
     except Exception:
         pass
 
@@ -26,10 +26,6 @@ def main():
         processor.load_model(lambda msg: print(f"  -> {msg}"))
     except Exception as e:
         print(f"\n[ERROR] Не удалось загрузить модель: {e}")
-        try:
-            input("Нажмите Enter для выхода...")
-        except Exception:
-            pass
         sys.exit(1)
 
     port = 5000
@@ -45,8 +41,8 @@ def main():
     )
     server_thread.start()
 
-    # If --cli flag or non-interactive environment, stay in console loop
-    is_cli = "--cli" in sys.argv or not sys.stdin or not sys.stdin.isatty()
+    # CLI mode is ONLY active if explicitly requested with --cli
+    is_cli = "--cli" in sys.argv
     
     if is_cli:
         print("  Режим: Консоль (нажмите Ctrl+C для остановки)")
@@ -60,11 +56,9 @@ def main():
         # Launch System Tray
         try:
             from tray import BubblyzerTray
-            print("  Сервер запущен. Приложение свернуто в системный трей.")
             
             def on_quit():
-                print("\nЗавершение работы Bubblyzer...")
-                sys.exit(0)
+                os._exit(0)
 
             tray_app = BubblyzerTray(processor, on_quit)
             tray_app.run()
