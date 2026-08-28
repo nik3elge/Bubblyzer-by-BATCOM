@@ -57,8 +57,6 @@ const I18N = {
         langGroupTitle: "Язык интерфейса / Language",
         langLabel: "Выберите язык / Select language:",
         langOptions: ["Русский (RU)", "English (EN)"],
-        reloadSwitchLabel: "Обновить окно на выбранном языке",
-        langHintText: "💡 При смене языка нажмите OK — окно мгновенно откроется на новом языке.",
         warningTitle: "⚠  Внимание",
         warningText: "Нейросеть ищет пузыри только с текстом. Не стирайте текст перед сканированием.",
         paramsTitle: "Параметры сканирования",
@@ -92,8 +90,6 @@ const I18N = {
         langGroupTitle: "Language / Язык интерфейса",
         langLabel: "Select language / Выберите язык:",
         langOptions: ["Русский (RU)", "English (EN)"],
-        reloadSwitchLabel: "Reload dialog in selected language",
-        langHintText: "💡 Change language and click OK to immediately reload this dialog.",
         warningTitle: "⚠  Important",
         warningText: "The AI detects speech bubbles containing text. Do not erase text before scanning.",
         paramsTitle: "Detection Settings",
@@ -219,7 +215,7 @@ async function processSpreads() {
     let useLayerGroup = true;
     let spreadsToScan = [];
 
-    // Цикл диалога (позволяет мгновенно обновить окно при смене языка)
+    // Цикл диалога: при смене языка в окне и нажатии OK окно автоматически в фоне перезагружается на новом языке
     while (!userCompletedDialog) {
         currentLang = (savedSettings.lang === "en") ? "en" : "ru";
         t = I18N[currentLang];
@@ -233,14 +229,9 @@ async function processSpreads() {
         let langGroup = col.addGroup("🌐  " + t.langGroupTitle);
         langGroup.enableSeparator = true;
 
-        let initialLangIndex = (savedSettings.lang === "en") ? 1 : 0;
+        let initialLangIndex = (currentLang === "en") ? 1 : 0;
         let langRadio = langGroup.addRadioGroup(t.langLabel, t.langOptions, initialLangIndex);
         langRadio.isFullWidth = true;
-
-        let reloadSwitch = langGroup.addSwitch(t.reloadSwitchLabel, false);
-
-        let langHint = langGroup.addStaticText("", t.langHintText);
-        langHint.isFullWidth = true;
 
         // 2. БЛОК ПРЕДУПРЕЖДЕНИЯ С РАЗДЕЛИТЕЛЕМ
         let infoGroup = col.addGroup(t.warningTitle);
@@ -273,13 +264,6 @@ async function processSpreads() {
         radio.onValueChangedHandler = function() {
             pagesText.isEnabled = (radio.selectedIndex === 2);
         };
-
-        langRadio.onValueChangedHandler = function() {
-            let newLang = (langRadio.selectedIndex === 1) ? "en" : "ru";
-            if (newLang !== savedSettings.lang) {
-                reloadSwitch.value = true;
-            }
-        };
         
         let result = dialog.runModal();
         
@@ -298,12 +282,12 @@ async function processSpreads() {
         savedSettings.lang = selectedLang;
         persistConfig(savedSettings);
 
-        // Если включен тумблер перезагрузки или язык изменился
-        if (reloadSwitch.value) {
-            continue; // Перезапускаем цикл диалога на новом языке
+        // Если пользователь сменил язык в окне и нажал OK — бесшовно перезагружаем окно на новом языке!
+        if (selectedLang !== currentLang) {
+            continue;
         }
 
-        // Пользователь нажал OK для запуска сканирования
+        // Пользователь нажал OK на нужном языке — переходим к сканированию
         userCompletedDialog = true;
         t = I18N[selectedLang];
 
