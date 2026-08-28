@@ -39,18 +39,86 @@ async function removeFileSafe(filePath) {
 
 // Пытаемся импортировать HttpRequest, если он в модуле
 let HttpReq = null;
-const possibleModules = ['/http', '/network', '/web', '/request', 'http', 'network'];
-for (let mod of possibleModules) {
-    try {
-        let m = require(mod);
-        if (m.HttpRequest) HttpReq = m.HttpRequest;
-        else if (m.HttpRequestApi) HttpReq = m.HttpRequestApi;
-    } catch (e) {}
-}
+try {
+    let net = require('/network') || require('/http');
+    if (net && net.HttpRequest) HttpReq = net.HttpRequest;
+    else if (net && net.HttpRequestApi) HttpReq = net.HttpRequestApi;
+} catch (e) {}
+
 if (!HttpReq) {
     if (typeof HttpRequest !== 'undefined') HttpReq = HttpRequest;
     else if (typeof HttpRequestApi !== 'undefined') HttpReq = HttpRequestApi;
 }
+
+// Локализация интерфейса (Русский и English)
+const I18N = {
+    ru: {
+        dialogTitle: "Bubblyzer от BATCOM",
+        warningTitle: "⚠  Внимание",
+        warningText: "Нейросеть ищет пузыри только с текстом. Не стирайте текст перед сканированием.",
+        paramsTitle: "Параметры сканирования",
+        scopeLabel: "Область обработки:",
+        scopeOptions: [
+            "Текущая страница",
+            "Весь документ",
+            "Выборочные страницы"
+        ],
+        pagesLabel: "Номера страниц:",
+        confLabel: "Порог уверенности (меньше = внимательнее):",
+        groupSwitchLabel: "Группировать фреймы в слой?",
+        langGroupTitle: "Язык интерфейса / Language",
+        langLabel: "Выберите язык:",
+        langOptions: ["Русский (RU)", "English (EN)"],
+        layerName: "Bubbles",
+        noDoc: "Нет активного документа в Affinity.",
+        noPages: "Не выбрано ни одной страницы для обработки.",
+        exportFailed: "Не удалось экспортировать страницу.",
+        noHttp: "В вашей версии Affinity не найден модуль HttpRequest / Network API.",
+        connectError: (url, err) => `Не удалось подключиться к серверу Bubblyzer (${url}).\n\nОшибка: ${err}\n\nПожалуйста, проверьте, что локальный сервер Bubblyzer запущен!`,
+        emptyResponse: "Сервер Bubblyzer вернул пустой ответ.",
+        serverError: (err) => `Ошибка сервера Bubblyzer: ${err}`,
+        invalidFormat: "Сервер вернул неожиданный формат данных.",
+        jsonError: (err) => `Не удалось распарсить JSON-ответ сервера: ${err}`,
+        successAlert: (pages, total, bubbles) => `Готово!\n\nУспешно обработано страниц: ${pages} из ${total}\nСоздано текстовых фреймов: ${bubbles}`,
+        failAlert: "Не удалось обработать выбранные страницы.",
+        alertTitleSuccess: "Bubblyzer от BATCOM",
+        alertTitleError: "Bubblyzer — Ошибка",
+        alertTitleWarning: "Bubblyzer — Предупреждение"
+    },
+    en: {
+        dialogTitle: "Bubblyzer by BATCOM",
+        warningTitle: "⚠  Important",
+        warningText: "The AI detects speech bubbles containing text. Do not erase text before scanning.",
+        paramsTitle: "Detection Settings",
+        scopeLabel: "Scan Target:",
+        scopeOptions: [
+            "Current Spread",
+            "All Spreads in Document",
+            "Selected Spreads"
+        ],
+        pagesLabel: "Page Numbers (e.g. 1-3, 5):",
+        confLabel: "Confidence Threshold (lower = more sensitive):",
+        groupSwitchLabel: "Group created frames into a layer?",
+        langGroupTitle: "Language / Язык интерфейса",
+        langLabel: "Select Language:",
+        langOptions: ["Русский (RU)", "English (EN)"],
+        layerName: "Bubbles",
+        noDoc: "No active document in Affinity.",
+        noPages: "No valid pages selected for scanning.",
+        exportFailed: "Failed to export spread.",
+        noHttp: "HttpRequest / Network API module was not found in your Affinity version.",
+        connectError: (url, err) => `Could not connect to Bubblyzer server (${url}).\n\nError: ${err}\n\nPlease make sure the Bubblyzer app is running!`,
+        emptyResponse: "Bubblyzer server returned an empty response.",
+        serverError: (err) => `Bubblyzer server error: ${err}`,
+        invalidFormat: "Server returned unexpected data format.",
+        jsonError: (err) => `Failed to parse JSON response: ${err}`,
+        successAlert: (pages, total, bubbles) => `Done!\n\nSuccessfully processed spreads: ${pages} of ${total}\nCreated text frames: ${bubbles}`,
+        failAlert: "Failed to process selected spreads.",
+        alertTitleSuccess: "Bubblyzer by BATCOM",
+        alertTitleError: "Bubblyzer — Error",
+        alertTitleWarning: "Bubblyzer — Warning"
+    }
+};
 
 function parsePageRanges(text, maxPages) {
     let indices = new Set();
@@ -78,7 +146,8 @@ let savedSettings = {
     mode: 0,
     pages: "",
     confidence: 40,
-    groupFrames: true
+    groupFrames: true,
+    lang: "ru"
 };
 
 function fetchSavedConfig() {
@@ -95,6 +164,7 @@ function fetchSavedConfig() {
                 if (parsed.group_frames !== undefined) savedSettings.groupFrames = Boolean(parsed.group_frames);
                 if (parsed.mode !== undefined) savedSettings.mode = Number(parsed.mode);
                 if (parsed.pages !== undefined) savedSettings.pages = String(parsed.pages);
+                if (parsed.lang !== undefined) savedSettings.lang = String(parsed.lang).toLowerCase() === "en" ? "en" : "ru";
             }
         }
     } catch (e) {}
@@ -107,7 +177,8 @@ function persistConfig(cfg) {
             `&confidence=${encodeURIComponent(cfg.confidence)}` +
             `&group_frames=${encodeURIComponent(cfg.groupFrames ? "true" : "false")}` +
             `&mode=${encodeURIComponent(cfg.mode)}` +
-            `&pages=${encodeURIComponent(cfg.pages || "")}`;
+            `&pages=${encodeURIComponent(cfg.pages || "")}` +
+            `&lang=${encodeURIComponent(cfg.lang || "ru")}`;
         let req = HttpReq.create(url, "GET");
         req.do();
     } catch (e) {}
@@ -124,53 +195,58 @@ function checkExportSuccess(records) {
 
 async function processSpreads() {
     let doc = AffinityDocument.current;
-    if (!doc) {
-        console.error("No active document.");
-        return;
-    }
     
     // Синхронизируем настройки с сохраненными
     fetchSavedConfig();
 
+    let currentLang = (savedSettings.lang === "en") ? "en" : "ru";
+    let t = I18N[currentLang];
+
+    if (!doc) {
+        console.error(t.noDoc);
+        if (typeof app !== 'undefined' && app.alert) {
+            app.alert(t.noDoc, t.alertTitleWarning);
+        }
+        return;
+    }
+
     // Создаем диалог
-    let dialog = Dialog.create("Bubblyzer от BATCOM");
+    let dialog = Dialog.create(t.dialogTitle);
     dialog.initialWidth = 460;
 
     let col = dialog.addColumn();
 
     // Блок предупреждения
-    let infoGroup = col.addGroup("⚠  Внимание");
-    let desc = infoGroup.addStaticText(
-        "",
-        "Нейросеть ищет пузыри только с текстом. Не стирайте текст перед сканированием."
-    );
+    let infoGroup = col.addGroup(t.warningTitle);
+    let desc = infoGroup.addStaticText("", t.warningText);
     desc.isFullWidth = true;
 
     // Блок параметров
-    let group = col.addGroup("Параметры сканирования");
+    let group = col.addGroup(t.paramsTitle);
 
     let initialMode = (savedSettings.mode >= 0 && savedSettings.mode <= 2) ? savedSettings.mode : 0;
-    let radio = group.addRadioGroup("Область обработки:", [
-        "Текущая страница",
-        "Весь документ",
-        "Выборочные страницы"
-    ], initialMode);
+    let radio = group.addRadioGroup(t.scopeLabel, t.scopeOptions, initialMode);
     radio.isFullWidth = true;
 
-    let pagesText = group.addTextBox("Номера страниц:", savedSettings.pages || "");
+    let pagesText = group.addTextBox(t.pagesLabel, savedSettings.pages || "");
     pagesText.isFullWidth = true;
     pagesText.isEnabled = (initialMode === 2);
 
     let initialConf = (savedSettings.confidence >= 1 && savedSettings.confidence <= 100) ? savedSettings.confidence : 40;
     let confEditor = group.addUnitValueEditor(
-        "Порог уверенности (меньше = внимательнее):",
+        t.confLabel,
         UnitType.Number, UnitType.Number,
         initialConf, 1, 100
     )
         .setShowPopupSlider(true)
         .setPrecision(0);
 
-    let groupSwitch = group.addSwitch("Группировать фреймы в слой?", savedSettings.groupFrames !== false);
+    let groupSwitch = group.addSwitch(t.groupSwitchLabel, savedSettings.groupFrames !== false);
+
+    // Блок выбора языка
+    let initialLangIndex = (savedSettings.lang === "en") ? 1 : 0;
+    let langRadio = group.addRadioGroup(t.langLabel, t.langOptions, initialLangIndex);
+    langRadio.isFullWidth = true;
 
     radio.onValueChangedHandler = function() {
         pagesText.isEnabled = (radio.selectedIndex === 2);
@@ -185,11 +261,16 @@ async function processSpreads() {
     }
 
     // Сохраняем выбранные настройки
+    let selectedLang = (langRadio.selectedIndex === 1) ? "en" : "ru";
     savedSettings.mode = radio.selectedIndex;
     savedSettings.pages = pagesText.text || "";
     savedSettings.confidence = Math.round(confEditor.value);
     savedSettings.groupFrames = Boolean(groupSwitch.value);
+    savedSettings.lang = selectedLang;
     persistConfig(savedSettings);
+
+    // Обновляем текущие тексты в соответствии с выбранным языком
+    t = I18N[selectedLang];
 
     let mode = radio.selectedIndex; // 0 = Current, 1 = All, 2 = Specific
     let spreadsList = doc.spreads.toArray();
@@ -207,7 +288,10 @@ async function processSpreads() {
     }
     
     if (spreadsToScan.length === 0) {
-        console.log("No valid pages selected.");
+        console.log(t.noPages);
+        if (typeof app !== 'undefined' && app.alert) {
+            app.alert(t.noPages, t.alertTitleWarning);
+        }
         return;
     }
     
@@ -252,12 +336,12 @@ async function processSpreads() {
             let success = checkExportSuccess(records);
             
             if (!success) {
-                console.error("Failed to export the page. Skipping...");
+                console.error(t.exportFailed);
                 continue;
             }
             
             if (!HttpReq) {
-                fatalError = "В вашей версии Affinity не найден модуль HttpRequest / Network API.";
+                fatalError = t.noHttp;
                 console.error(fatalError);
                 break;
             }
@@ -284,15 +368,13 @@ async function processSpreads() {
                     responseStr = reqResult;
                 }
             } catch (e) {
-                fatalError = `Не удалось подключиться к серверу Bubblyzer (${SERVER_URL}).\n\n` +
-                             "Ошибка: " + (e.message || e) + "\n\n" +
-                             "Пожалуйста, проверьте, что локальный Python-сервер запущен!";
+                fatalError = t.connectError(SERVER_URL, e.message || e);
                 console.error(fatalError);
                 break;
             }
 
             if (!responseStr) {
-                fatalError = "Сервер Bubblyzer вернул пустой ответ.";
+                fatalError = t.emptyResponse;
                 console.error(fatalError);
                 break;
             }
@@ -301,17 +383,17 @@ async function processSpreads() {
             try {
                 data = JSON.parse(responseStr);
                 if (data && data.error) {
-                    fatalError = "Ошибка сервера Bubblyzer: " + data.error;
+                    fatalError = t.serverError(data.error);
                     console.error(fatalError);
                     break;
                 }
                 if (!Array.isArray(data)) {
-                    fatalError = "Сервер вернул неожиданный формат данных.";
+                    fatalError = t.invalidFormat;
                     console.error(fatalError);
                     break;
                 }
             } catch (e) {
-                fatalError = "Не удалось распарсить JSON-ответ сервера: " + e.message;
+                fatalError = t.jsonError(e.message);
                 console.error(fatalError);
                 break;
             }
@@ -322,7 +404,7 @@ async function processSpreads() {
             let targetParent = null;
             if (useLayerGroup && filtered.length > 0) {
                 try {
-                    let containerDef = ContainerNodeDefinition.create("Bubbles");
+                    let containerDef = ContainerNodeDefinition.create(t.layerName);
                     let builder = AddChildNodesCommandBuilder.create();
                     builder.setInsertionTarget(spread);
                     builder.addNode(containerDef);
@@ -335,7 +417,7 @@ async function processSpreads() {
                         targetParent = spread.children.last;
                     }
                 } catch(e) {
-                    console.log("Could not create Bubbles layer, placing directly on spread:", e.message);
+                    console.log("Could not create layer, placing directly on spread:", e.message);
                     targetParent = null;
                 }
             }
@@ -368,19 +450,19 @@ async function processSpreads() {
 
     if (fatalError) {
         if (typeof app !== 'undefined' && app.alert) {
-            app.alert(fatalError, "Bubblyzer — Ошибка");
+            app.alert(fatalError, t.alertTitleError);
         }
     } else if (successPagesCount > 0) {
         console.log("\nFinished processing all selected pages!");
         if (typeof app !== 'undefined' && app.alert) {
             app.alert(
-                `Готово!\n\nУспешно обработано страниц: ${successPagesCount} из ${spreadsToScan.length}\nСоздано текстовых фреймов: ${totalBubblesCount}`,
-                "Bubblyzer от BATCOM"
+                t.successAlert(successPagesCount, spreadsToScan.length, totalBubblesCount),
+                t.alertTitleSuccess
             );
         }
     } else {
         if (typeof app !== 'undefined' && app.alert) {
-            app.alert("Не удалось обработать выбранные страницы.", "Bubblyzer — Предупреждение");
+            app.alert(t.failAlert, t.alertTitleWarning);
         }
     }
 }

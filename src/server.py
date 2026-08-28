@@ -128,7 +128,7 @@ def load_config():
                 return json.load(f)
         except Exception:
             pass
-    return {"confidence": 40, "group_frames": True, "mode": 0, "pages": ""}
+    return {"confidence": 40, "group_frames": True, "mode": 0, "pages": "", "lang": "ru"}
 
 def save_config(cfg):
     try:
@@ -180,6 +180,8 @@ def config_endpoint():
                 except ValueError: pass
             if 'pages' in request.args:
                 cfg['pages'] = request.args.get('pages')
+            if 'lang' in request.args:
+                cfg['lang'] = request.args.get('lang')
         save_config(cfg)
         return jsonify(cfg)
     else:
