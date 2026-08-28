@@ -15,6 +15,8 @@ if SRC_DIR not in sys.path:
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
+from src.version import DEFAULT_PORT, DEFAULT_SERVER_URL
+
 def create_test_comic_page(filename="test_comic_page.png"):
     img = np.full((1200, 800, 3), 255, dtype=np.uint8)
     cv2.rectangle(img, (50, 50), (750, 550), (0, 0, 0), 4)
@@ -53,7 +55,7 @@ def test_target(cmd_args, label):
         status_data = None
         for i in range(20):
             try:
-                with urllib.request.urlopen("http://127.0.0.1:5000/status", timeout=1) as resp:
+                with urllib.request.urlopen(f"{DEFAULT_SERVER_URL}/status", timeout=1) as resp:
                     if resp.status == 200:
                         status_data = json.loads(resp.read().decode('utf-8'))
                         server_ready = True
@@ -68,20 +70,20 @@ def test_target(cmd_args, label):
         print(f"  [+] Status endpoint OK: {status_data}")
 
         # 2. Test HTML Dashboard
-        with urllib.request.urlopen("http://127.0.0.1:5000/") as resp:
+        with urllib.request.urlopen(f"{DEFAULT_SERVER_URL}/") as resp:
             html = resp.read().decode('utf-8')
             assert "Bubblyzer" in html
             print("  [+] HTML Dashboard OK (HTTP 200)")
 
         # 3. Test Config
-        url = "http://127.0.0.1:5000/config?save=1&confidence=42"
+        url = f"{DEFAULT_SERVER_URL}/config?save=1&confidence=42"
         with urllib.request.urlopen(url) as resp:
             cfg = json.loads(resp.read().decode('utf-8'))
             assert cfg.get("confidence") == 42
             print(f"  [+] Config update OK: confidence={cfg.get('confidence')}")
 
         # 4. Test Detection
-        detect_url = f"http://127.0.0.1:5000/detect?image_path={urllib.parse.quote(test_image)}&cleanup=false&confidence=0.15"
+        detect_url = f"{DEFAULT_SERVER_URL}/detect?image_path={urllib.parse.quote(test_image)}&cleanup=false&confidence=0.15"
         with urllib.request.urlopen(detect_url) as resp:
             results = json.loads(resp.read().decode('utf-8'))
             print(f"  [+] Detection OK! Found {len(results)} speech bubbles:")

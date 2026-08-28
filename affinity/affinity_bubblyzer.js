@@ -17,7 +17,8 @@ const { Dialog, DialogResult, UnitType } = require('/dialog');
 const { app } = require('/application');
 
 // Базовый адрес локального сервера Bubblyzer
-const SERVER_URL = "http://127.0.0.1:5000";
+const SERVER_PORT = 28734;
+const SERVER_URL = "http://127.0.0.1:" + SERVER_PORT;
 
 // Модуль файловой системы для очистки временных файлов
 let fsModule = null;

@@ -47,7 +47,8 @@ class BubblyzerTray:
         self.icon = None
 
     def open_web_dashboard(self, icon=None, item=None):
-        webbrowser.open("http://127.0.0.1:5000")
+        from version import DEFAULT_SERVER_URL
+        webbrowser.open(DEFAULT_SERVER_URL)
 
     def open_app_folder(self, icon=None, item=None):
         base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -68,14 +69,14 @@ class BubblyzerTray:
 
     def run(self):
         import pystray
-        from version import __version__, __app_name__, __author__
+        from version import __version__, __app_name__, __author__, DEFAULT_SERVER_URL
         
         accelerator = self.processor.active_provider if self.processor else "Auto"
 
         menu = pystray.Menu(
             pystray.MenuItem(f"💬 {__app_name__} v{__version__} by {__author__}", self.open_web_dashboard, default=True),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem(f"🟢 Сервер: http://127.0.0.1:5000", self.open_web_dashboard),
+            pystray.MenuItem(f"🟢 Сервер: {DEFAULT_SERVER_URL}", self.open_web_dashboard),
             pystray.MenuItem(f"⚡ Ускоритель: {accelerator}", lambda: None, enabled=False),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("🌐 Открыть статус в браузере", self.open_web_dashboard),
@@ -95,7 +96,7 @@ class BubblyzerTray:
         def notify_start():
             try:
                 self.icon.notify(
-                    f"Сервер активен на http://127.0.0.1:5000\nУскоритель: {accelerator}",
+                    f"Сервер активен на {DEFAULT_SERVER_URL}\nУскоритель: {accelerator}",
                     f"{__app_name__} v{__version__} by {__author__}"
                 )
             except Exception:

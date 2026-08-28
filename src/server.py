@@ -4,7 +4,7 @@ import json
 import base64
 import logging
 from flask import Flask, request, jsonify, render_template_string
-from version import __version__, __app_name__, __author__, __boosty_url__
+from version import __version__, __app_name__, __author__, __boosty_url__, DEFAULT_PORT, DEFAULT_HOST, DEFAULT_SERVER_URL
 
 app = Flask(__name__)
 # Suppress default flask logging
@@ -144,7 +144,7 @@ def index():
     return render_template_string(
         HTML_DASHBOARD,
         accelerator=accelerator,
-        port=5000,
+        port=DEFAULT_PORT,
         version=__version__,
         app_name=__app_name__,
         author=__author__,
@@ -157,6 +157,7 @@ def status():
     return jsonify({
         "name": f"{__app_name__} by {__author__}",
         "version": __version__,
+        "port": DEFAULT_PORT,
         "status": "ready",
         "accelerator": processor_instance.active_provider if processor_instance else "None",
         "model_loaded": processor_instance is not None and processor_instance.session is not None
@@ -215,7 +216,7 @@ def detect():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-def start_server(processor, port=5000):
+def start_server(processor, port=DEFAULT_PORT):
     global processor_instance
     processor_instance = processor
-    app.run(host='127.0.0.1', port=port, debug=False, use_reloader=False)
+    app.run(host=DEFAULT_HOST, port=port, debug=False, use_reloader=False)

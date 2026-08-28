@@ -22,7 +22,7 @@ if sys.platform == "win32":
 
 from processor import BubbleProcessor
 from server import start_server
-from version import __version__, __app_name__, __author__
+from version import __version__, __app_name__, __author__, DEFAULT_PORT, DEFAULT_SERVER_URL
 
 def main():
     log_error(f"{__app_name__} v{__version__} main() starting...")
@@ -42,8 +42,8 @@ def main():
         print(f"\n[ERROR] {err}")
         sys.exit(1)
 
-    port = 5000
-    print(f"\n[2/2] Запуск API сервера на http://127.0.0.1:{port}...")
+    port = DEFAULT_PORT
+    print(f"\n[2/2] Запуск API сервера на {DEFAULT_SERVER_URL}...")
     print(f"  -> Активный ускоритель: {processor.active_provider}")
     print("=" * 60)
 
