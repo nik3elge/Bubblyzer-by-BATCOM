@@ -147,8 +147,7 @@ let savedSettings = {
     pages: "",
     confidence: 40,
     groupFrames: true,
-    lang: "ru",
-    tempExportPath: ""
+    lang: "ru"
 };
 
 function fetchSavedConfig() {
@@ -166,7 +165,6 @@ function fetchSavedConfig() {
                 if (parsed.mode !== undefined) savedSettings.mode = Number(parsed.mode);
                 if (parsed.pages !== undefined) savedSettings.pages = String(parsed.pages);
                 if (parsed.lang !== undefined) savedSettings.lang = String(parsed.lang).toLowerCase() === "en" ? "en" : "ru";
-                if (parsed.temp_export_path) savedSettings.tempExportPath = String(parsed.temp_export_path);
             }
         }
     } catch (e) {}
@@ -321,14 +319,12 @@ async function processSpreads() {
         useLayerGroup = groupSwitch.value;
     }
 
-    let tempPath = savedSettings.tempExportPath;
-    if (!tempPath) {
-        if (typeof app !== 'undefined' && app.userDesktopPath) {
-            let base = app.userDesktopPath.replace(/[/\\]+$/, '');
-            tempPath = base + "/Bubblyzer_temp_export.png";
-        } else {
-            tempPath = "Bubblyzer_temp_export.png";
-        }
+    let tempPath;
+    if (typeof app !== 'undefined' && app.userDesktopPath) {
+        let base = app.userDesktopPath.replace(/[/\\]+$/, '');
+        tempPath = base + "/Bubblyzer_temp_export.png";
+    } else {
+        tempPath = "Bubblyzer_temp_export.png";
     }
 
     let successPagesCount = 0;
