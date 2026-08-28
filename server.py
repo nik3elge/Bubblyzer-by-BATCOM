@@ -3,6 +3,7 @@ import sys
 import json
 import logging
 from flask import Flask, request, jsonify, render_template_string
+from version import __version__, __app_name__, __author__, __boosty_url__
 
 app = Flask(__name__)
 # Suppress default flask logging
@@ -18,7 +19,7 @@ HTML_DASHBOARD = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bubblyzer by BATCOM</title>
+    <title>{{ app_name }} v{{ version }} by {{ author }}</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -35,8 +36,9 @@ HTML_DASHBOARD = """
         .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 600px; width: 100%; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5); }
         .header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
         .logo { width: 48px; height: 48px; background: linear-gradient(135deg, #38bdf8, #818cf8); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: white; box-shadow: 0 0 15px var(--accent-glow); }
-        .title h1 { font-size: 22px; font-weight: 700; color: #fff; }
-        .title p { font-size: 13px; color: var(--accent); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600; }
+        .title h1 { font-size: 22px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .title h1 span.ver { font-size: 13px; font-weight: 600; color: var(--accent); background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 8px; border-radius: 6px; }
+        .title p { font-size: 13px; color: var(--accent); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600; margin-top: 2px; }
         .status-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(74, 222, 128, 0.1); border: 1px solid rgba(74, 222, 128, 0.3); color: var(--success); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 20px; }
         .status-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
@@ -53,8 +55,8 @@ HTML_DASHBOARD = """
         <div class="header">
             <div class="logo">💬</div>
             <div class="title">
-                <h1>Bubblyzer</h1>
-                <p>by BATCOM</p>
+                <h1>{{ app_name }} <span class="ver">v{{ version }}</span></h1>
+                <p>by {{ author }}</p>
             </div>
         </div>
         <div class="status-badge">
@@ -80,7 +82,7 @@ HTML_DASHBOARD = """
             </ol>
         </div>
         <div class="footer">
-            <a href="https://boosty.to/nananabatcom" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 600;">Bubblyzer by BATCOM</a> &bull; Модель YOLOv8 ONNX (автор базы: ogkalu)
+            <a href="{{ boosty_url }}" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 600;">{{ app_name }} v{{ version }} by {{ author }}</a> &bull; Модель YOLOv8 ONNX (автор базы: ogkalu)
         </div>
     </div>
 </body>
@@ -106,13 +108,21 @@ def save_config(cfg):
 @app.route('/')
 def index():
     accelerator = processor_instance.active_provider if processor_instance else "Unknown"
-    return render_template_string(HTML_DASHBOARD, accelerator=accelerator, port=5000)
+    return render_template_string(
+        HTML_DASHBOARD,
+        accelerator=accelerator,
+        port=5000,
+        version=__version__,
+        app_name=__app_name__,
+        author=__author__,
+        boosty_url=__boosty_url__
+    )
 
 @app.route('/status', methods=['GET'])
 def status():
     return jsonify({
-        "name": "Bubblyzer by BATCOM",
-        "version": "1.0.0",
+        "name": f"{__app_name__} by {__author__}",
+        "version": __version__,
         "status": "ready",
         "accelerator": processor_instance.active_provider if processor_instance else "None",
         "model_loaded": processor_instance is not None and processor_instance.session is not None

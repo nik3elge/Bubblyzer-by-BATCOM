@@ -22,11 +22,12 @@ if sys.platform == "win32":
 
 from processor import BubbleProcessor
 from server import start_server
+from version import __version__, __app_name__, __author__
 
 def main():
-    log_error("Bubblyzer main() starting...")
+    log_error(f"{__app_name__} v{__version__} main() starting...")
     print("=" * 60)
-    print("        Bubblyzer by BATCOM — Comic Bubble Detector")
+    print(f"        {__app_name__} v{__version__} by {__author__} — Comic Bubble Detector")
     print("=" * 60)
 
     # Initialize ONNX Processor

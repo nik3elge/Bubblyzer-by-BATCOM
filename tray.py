@@ -55,11 +55,12 @@ class BubblyzerTray:
 
     def run(self):
         import pystray
+        from version import __version__, __app_name__, __author__
         
         accelerator = self.processor.active_provider if self.processor else "Auto"
 
         menu = pystray.Menu(
-            pystray.MenuItem("💬 Bubblyzer by BATCOM", self.open_web_dashboard, default=True),
+            pystray.MenuItem(f"💬 {__app_name__} v{__version__} by {__author__}", self.open_web_dashboard, default=True),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem(f"🟢 Сервер: http://127.0.0.1:5000", self.open_web_dashboard),
             pystray.MenuItem(f"⚡ Ускоритель: {accelerator}", lambda: None, enabled=False),
@@ -74,7 +75,7 @@ class BubblyzerTray:
         self.icon = pystray.Icon(
             "Bubblyzer",
             image,
-            "Bubblyzer by BATCOM",
+            f"{__app_name__} v{__version__} by {__author__}",
             menu=menu
         )
 
