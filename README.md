@@ -5,7 +5,7 @@
 [![Release](https://img.shields.io/github/v/release/BATCOM/Bubblyzer?style=flat-square&color=a7f175)](https://github.com/BATCOM/Bubblyzer/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-blue?style=flat-square)](https://github.com/BATCOM/Bubblyzer/releases)
 [![AI Engine](https://img.shields.io/badge/AI%20Engine-ONNX%20Runtime%20%2B%20DirectML-success?style=flat-square)](https://onnxruntime.ai/)
-[![Integration](https://img.shields.io/badge/Affinity-by%20Canva-00eb8b?style=flat-square)](https://affinity.serif.com/)
+[![Integration](https://img.shields.io/badge/Affinity-by%20Canva-00eb8b?style=flat-square)](https://affinity.studio/)
 [![Boosty](https://img.shields.io/badge/Boosty-BATCOM-orange?style=flat-square&logo=boosty&logoColor=white)](https://boosty.to/nananabatcom/donate)
 
 **Умный инструмент на базе ИИ (YOLOv8 ONNX) для автоматического поиска диалоговых пузырей (бабблов) на страницах комиксов и манги с мгновенной расстановкой текстовых фреймов в Affinity by Canva (Publisher и Designer).**
@@ -36,7 +36,8 @@
    - **macOS:** `Bubblyzer-macOS.zip`
 2. Распакуйте архив в любое удобное место.
 3. Запустите `Bubblyzer.exe` (на Windows) или `Bubblyzer.app` (на macOS).
-4. В системном трее появится иконка 💬 — сервер готов к работе.
+4. В системном трее появится иконка 💬 — локальный ИИ-сервер готов к работе на порту `28734`.
+5. *(Опционально)* Кликните по иконке в трее или откройте в браузере [**http://127.0.0.1:28734**](http://127.0.0.1:28734), чтобы посмотреть статус готовности сервера, активный видеоускоритель (DirectML / CoreML / CPU) и веб-панель.
 
 ---
 
