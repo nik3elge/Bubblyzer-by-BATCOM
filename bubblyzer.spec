@@ -13,14 +13,8 @@ a = Analysis(
         ('models/comic-speech-bubble-detector.onnx', '.'),
         ('config.json', '.'),
         ('affinity/affinity_bubblyzer.js', 'affinity'),
-        ('assets/app_icon.png', 'assets'),
-        ('assets/app_icon.ico', 'assets'),
-        ('assets/tray_icon.png', 'assets'),
-        ('assets/Bubblyzer_minimalist_app_icon.svg', 'assets'),
-        ('assets/app_icon.png', '.'),
-        ('assets/app_icon.ico', '.'),
-        ('assets/tray_icon.png', '.'),
-        ('assets/Bubblyzer_minimalist_app_icon.svg', '.')
+        ('assets/*', 'assets'),
+        ('assets/*', '.')
     ],
     hiddenimports=[
         'onnxruntime',

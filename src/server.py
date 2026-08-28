@@ -26,7 +26,7 @@ def get_icon_base64():
         os.getcwd()
     ]
     for sdir in search_dirs:
-        for fn, mime in [('Bubblyzer_minimalist_app_icon.svg', 'image/svg+xml'), ('app_icon.png', 'image/png')]:
+        for fn, mime in [('app_icon.svg', 'image/svg+xml'), ('app_icon_clear.svg', 'image/svg+xml'), ('app_icon.png', 'image/png')]:
             path = os.path.join(sdir, fn)
             if os.path.exists(path):
                 try:
