@@ -1,112 +1,51 @@
 # 💬 Bubblyzer by BATCOM
 
-[![Release](https://img.shields.io/github/v/release/BATCOM/Bubblyzer?style=flat-square&color=38bdf8)](https://github.com)
+[![Release](https://img.shields.io/github/v/release/BATCOM/Bubblyzer?style=flat-square&color=a7f175)](https://github.com)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-blue?style=flat-square)](https://github.com)
 [![AI Engine](https://img.shields.io/badge/AI%20Engine-ONNX%20Runtime%20%2B%20DirectML-success?style=flat-square)](https://onnxruntime.ai/)
 [![Integration](https://img.shields.io/badge/Affinity-Publisher%20%26%20Designer%20v2-orange?style=flat-square)](https://affinity.serif.com/)
 
-**Bubblyzer by BATCOM** — это автономное приложение на базе нейросети **YOLOv8 ONNX** для автоматического распознавания речевых пузырей (бабблов) на страницах комиксов и манги с мгновенной расстановкой текстовых фреймов в **Affinity by Canva**.
+**Bubblyzer by BATCOM** — это умный инструмент на базе искусственного интеллекта (**YOLOv8 ONNX**) для автоматического поиска диалоговых пузырей (бабблов) на страницах комиксов и манги с мгновенной расстановкой текстовых фреймов в **Affinity by Canva** (Publisher и Designer).
 
 ---
 
 ## ✨ Возможности
 
-- **Высокая скорость (ONNX Runtime):** Дистрибутив весит в разы меньше классических PyTorch-решений и запускается за доли секунды.
-- **Аппаратное ускорение из коробки:**
+- **⚡ Высокая скорость и легкость:** Работает на оптимизированном движке ONNX Runtime, запускается мгновенно и не требует тяжелых библиотек.
+- **🚀 Аппаратное ускорение из коробки:**
   - **Windows:** `DirectML` (работает на **любых** видеокартах: NVIDIA, AMD Radeon, Intel Arc / UHD).
-  - **macOS:** `CoreML` (полная поддержка Apple Silicon M1/M2/M3/M4 и Neural Engine).
-  - **Автоматический откат на CPU:** если GPU недоступен, сервер бесшовно продолжит работу на процессоре.
-- **Нативная интеграция с Affinity by Canva:** Скрипт `affinity_bubblyzer.js` экспортирует страницу, опрашивает локальный сервер и автоматически создает текстовые фреймы (`Frame Text`) точного размера прямо поверх найденных бабблов.
-- **Удобство и тихий режим:** Приложение работает в фоновом режиме в системном трее Windows/macOS.
-- **100% Оффлайн и конфиденциально:** Все изображения обрабатываются локально на вашем компьютере, данные никуда не отправляются.
+  - **macOS:** `CoreML` (полная поддержка процессоров Apple Silicon M1 / M2 / M3 / M4 и Neural Engine).
+  - **Автоматический откат на CPU:** если видеокарта не обнаружена, приложение продолжит работать на процессоре.
+- **🎨 Полная интеграция с Affinity by Canva:** Скрипт `affinity_bubblyzer.js` сканирует страницы и создает текстовые блоки (`Frame Text`) точного размера прямо поверх найденных бабблов.
+- **🌐 Двуязычный интерфейс:** Полная поддержка **русского** и **английского** языков в окне настроек Affinity и веб-панели.
+- **🔒 100% Конфиденциально и офлайн:** Все изображения обрабатываются локально на вашем компьютере, данные никуда не отправляются.
+- **☕ Тихий режим:** Приложение аккуратно сворачивается в системный трей рядом с часами и не мешает работе.
 
 ---
 
-## 🚀 Быстрый старт для пользователей
+## 🚀 Как использовать
 
-### 1. Скачивание и запуск
-1. Перейдите в раздел [**Releases**](../../releases) и скачайте архив для вашей системы:
+### Шаг 1. Скачайте и запустите Bubblyzer
+1. Перейдите в раздел [**Releases**](../../releases) и скачайте архив для вашей операционной системы:
    - **Windows:** `Bubblyzer-Windows-x64.zip`
    - **macOS:** `Bubblyzer-macOS.zip`
-2. Распакуйте архив в удобную папку.
+2. Распакуйте архив в любое удобное место.
 3. Запустите `Bubblyzer.exe` (на Windows) или `Bubblyzer.app` (на macOS).
-4. В системном трее появится иконка 💬, а вы получите уведомление о готовности сервера к работе.
+4. В системном трее появится иконка 💬 — сервер готов к работе.
 
 ---
 
-### 2. Запуск сканирования в Affinity
+### Шаг 2. Запустите сканирование в Affinity
 1. Откройте проект комикса в **Affinity by Canva**.
-2. Установите скрипт `affinity_bubblyzer.js` с помощью [**Script Manager for Affinity**](https://jirikrblich.github.io/Affinity-script-manager/).
-3. Запустите скрипт — в появившемся диалоговом окне настройте порог и нажмите **ОК**. Нейросеть автоматически найдет пузыри и расставит текстовые фреймы!
-
----
-
-## 🛠️ Запуск из исходного кода (для разработчиков)
-
-### Требования
-- Python 3.10+
-- `pip`
-
-### Установка
-```bash
-# Клонируйте репозиторий
-git clone https://github.com/BATCOM/Bubblyzer.git
-cd Bubblyzer
-
-# Установите зависимости
-pip install -r requirements.txt
-
-# Экспортируйте/скачайте ONNX модель
-python models/export_onnx.py
-
-# Запустите приложение в режиме трея
-python src/main.py
-
-# Или в консольном режиме для отладки
-python src/main.py --cli
-```
-
-### Сборка standalone `.exe` (Windows)
-```bat
-scripts\build_windows.bat
-```
-Собранный исполняемый файл появится в папке `dist/Bubblyzer.exe`.
-
----
-
-## 📁 Структура проекта
-
-```text
-Bubblyzer/
-├── src/                     # Исходный код приложения (main, server, processor, tray, version)
-├── affinity/                # Скрипты интеграции для Affinity by Canva
-├── assets/                  # Иконки и графические ресурсы (.svg, .png, .ico)
-├── models/                  # ONNX модель и скрипт экспорта
-├── scripts/                 # Скрипты запуска и компиляции (.bat)
-├── tests/                   # Автоматические тесты (unit & e2e)
-├── .github/workflows/       # CI/CD автоматизация сборки для релизов
-├── dist/                    # Скомпилированный автономный Bubblyzer.exe
-├── bubblyzer.spec           # Конфигурация PyInstaller
-└── requirements.txt         # Зависимости Python
-```
-
----
-
-## 📡 REST API сервера
-
-Локальный сервер Bubblyzer работает по адресу `http://127.0.0.1:28734`:
-
-| Эндпоинт | Метод | Описание |
-|---|---|---|
-| `/` | `GET` | Красивая панель статуса в веб-браузере |
-| `/status` | `GET` | JSON со статусом сервера и активным ускорителем (`DirectML`, `CoreML`, `CPU`) |
-| `/detect` | `GET` / `POST` | Распознавание бабблов на изображении (`image_path=...`, `cleanup=true`) |
-| `/config` | `GET` / `POST` | Чтение и сохранение настроек сканирования |
+2. Установите скрипт `affinity_bubblyzer.js` с помощью бесплатного менеджера скриптов [**Script Manager for Affinity**](https://jirikrblich.github.io/Affinity-script-manager/).
+3. Нажмите кнопку запуска скрипта в Affinity.
+4. В появившемся окне выберите диапазон страниц, настройте порог уверенности и нажмите **OK**.
+5. Нейросеть автоматически найдет все бабблы и расставит готовые текстовые фреймы!
 
 ---
 
 ## 📜 Лицензия и благодарности
 
 - Исходный код Bubblyzer распространяется под лицензией **MIT** (см. файл [LICENSE](LICENSE)).
-- Веса базовой модели детекции бабблов предоставлены исследователем **ogkalu** ([Hugging Face Model Card](https://huggingface.co/ogkalu/comic-speech-bubble-detector-yolov8m)).
+- Веса базовой модели детекции бабблов предоставлены исследователем **ogkalu** ([Hugging Face](https://huggingface.co/ogkalu/comic-speech-bubble-detector-yolov8m)).
 - Разработано командой [**BATCOM**](https://boosty.to/nananabatcom).
