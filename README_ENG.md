@@ -1,8 +1,6 @@
-<p align="center">
-  <b><a href="README.md">Русский</a> | English</b>
-</p>
-
 <div align="center">
+
+<b><a href="README.md">Русский</a> | English</b>
 
 # 💬 Bubblyzer by BATCOM
 
@@ -12,7 +10,7 @@
 [![Integration](https://img.shields.io/badge/Affinity-by%20Canva-00eb8b?style=flat-square)](https://affinity.serif.com/)
 [![Boosty](https://img.shields.io/badge/Boosty-BATCOM-orange?style=flat-square&logo=boosty&logoColor=white)](https://boosty.to/nananabatcom/donate)
 
-**An AI-powered tool (**YOLOv8 ONNX**) for automatic comic and manga speech bubble detection with instant text frame placement in Affinity by Canva (Publisher & Designer).**
+**An AI-powered tool (**YOLOv8 ONNX**) for automatic comic and manga speech bubble detection with instant text frame placement in Affinity by Canva.**
 
 </div>
 
