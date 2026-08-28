@@ -44,3 +44,5 @@ docs/
 Thumbs.db
 
 *.log
+
+config.json

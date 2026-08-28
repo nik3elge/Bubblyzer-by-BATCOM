@@ -44,7 +44,6 @@ jobs:
           New-Item -ItemType Directory -Force -Path dist/Bubblyzer-Windows
           Copy-Item dist/Bubblyzer.exe dist/Bubblyzer-Windows/
           Copy-Item affinity/affinity_bubblyzer.js dist/Bubblyzer-Windows/
-          Copy-Item config.json dist/Bubblyzer-Windows/
           Compress-Archive -Path dist/Bubblyzer-Windows/* -DestinationPath dist/Bubblyzer-Windows-x64.zip
 
       - name: Upload Windows Artifact
@@ -87,7 +86,6 @@ jobs:
             --icon="assets/app_icon.png" \
             --add-data="models/comic-speech-bubble-detector.onnx:models" \
             --add-data="models/comic-speech-bubble-detector.onnx:." \
-            --add-data="config.json:." \
             --add-data="affinity/affinity_bubblyzer.js:affinity" \
             --add-data="assets/*:assets" \
             --hidden-import=onnxruntime \
@@ -102,7 +100,6 @@ jobs:
           mkdir -p dist/Bubblyzer-macOS
           cp -R dist/Bubblyzer.app dist/Bubblyzer-macOS/
           cp affinity/affinity_bubblyzer.js dist/Bubblyzer-macOS/
-          cp config.json dist/Bubblyzer-macOS/
           cd dist && zip -r Bubblyzer-macOS.zip Bubblyzer-macOS
 
       - name: Upload macOS Artifact

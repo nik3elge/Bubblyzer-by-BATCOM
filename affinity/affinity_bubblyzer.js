@@ -54,19 +54,19 @@ if (!HttpReq) {
 const I18N = {
     ru: {
         dialogTitle: "Bubblyzer от BATCOM",
-        langGroupTitle: "Язык интерфейса / Language",
-        langLabel: "Выберите язык / Select language:",
+        langGroupTitle: "Language",
+        langLabel: "Change language and click OK to immediately reload this dialog.",
         langOptions: ["Русский (RU)", "English (EN)"],
         warningTitle: "⚠  Внимание",
         warningText: "Нейросеть ищет пузыри только с текстом. Не стирайте текст перед сканированием.",
-        paramsTitle: "Параметры сканирования",
-        scopeLabel: "Область обработки:",
+        paramsTitle: "👁️ Параметры сканирования",
+        scopeLabel: "",
         scopeOptions: [
             "Текущая страница",
             "Весь документ",
-            "Выборочные страницы"
+            "Выборочные страницы (например, 1-3, 5)"
         ],
-        pagesLabel: "Номера страниц:",
+        pagesLabel: "",
         confLabel: "Порог уверенности (меньше = внимательнее):",
         groupSwitchLabel: "Группировать фреймы в слой?",
         layerName: "Bubbles",
@@ -87,19 +87,19 @@ const I18N = {
     },
     en: {
         dialogTitle: "Bubblyzer by BATCOM",
-        langGroupTitle: "Language / Язык интерфейса",
-        langLabel: "Select language / Выберите язык:",
+        langGroupTitle: "Язык интерфейса",
+        langLabel: "При смене языка нажмите OK — окно мгновенно откроется на новом языке.",
         langOptions: ["Русский (RU)", "English (EN)"],
         warningTitle: "⚠  Important",
         warningText: "The AI detects speech bubbles containing text. Do not erase text before scanning.",
-        paramsTitle: "Detection Settings",
-        scopeLabel: "Scan Target:",
+        paramsTitle: "👁️ Detection Settings",
+        scopeLabel: "",
         scopeOptions: [
             "Current Spread",
             "All Spreads in Document",
-            "Selected Spreads"
+            "Selected Spreads (e.g. 1-3, 5)"
         ],
-        pagesLabel: "Page Numbers (e.g. 1-3, 5):",
+        pagesLabel: "",
         confLabel: "Confidence Threshold (lower = more sensitive):",
         groupSwitchLabel: "Group created frames into a layer?",
         layerName: "Bubbles",
@@ -225,22 +225,20 @@ async function processSpreads() {
 
         let col = dialog.addColumn();
 
-        // 1. БЛОК ВЫБОРА ЯЗЫКА НА САМОМ ВЕРХУ С РАЗДЕЛИТЕЛЕМ
+        // 1. БЛОК ВЫБОРА ЯЗЫКА (ComboBox для компактности)
         let langGroup = col.addGroup("🌐  " + t.langGroupTitle);
         langGroup.enableSeparator = true;
 
         let initialLangIndex = (currentLang === "en") ? 1 : 0;
-        let langRadio = langGroup.addRadioGroup(t.langLabel, t.langOptions, initialLangIndex);
+        let langRadio = langGroup.addComboBox(t.langLabel, t.langOptions, initialLangIndex);
         langRadio.isFullWidth = true;
 
-        // 2. БЛОК ПРЕДУПРЕЖДЕНИЯ С РАЗДЕЛИТЕЛЕМ
-        let infoGroup = col.addGroup(t.warningTitle);
-        infoGroup.enableSeparator = true;
-        let desc = infoGroup.addStaticText("", t.warningText);
-        desc.isFullWidth = true;
-
-        // 3. БЛОК ПАРАМЕТРОВ СКАНА
+        // 2. БЛОК ПАРАМЕТРОВ СКАНА (включает предупреждение)
         let group = col.addGroup(t.paramsTitle);
+        group.enableSeparator = true;
+
+        let desc = group.addStaticText("", t.warningTitle + "  " + t.warningText);
+        desc.isFullWidth = true;
 
         let initialMode = (savedSettings.mode >= 0 && savedSettings.mode <= 2) ? savedSettings.mode : 0;
         let radio = group.addRadioGroup(t.scopeLabel, t.scopeOptions, initialMode);

@@ -11,7 +11,6 @@ a = Analysis(
     datas=[
         ('models/comic-speech-bubble-detector.onnx', 'models'),
         ('models/comic-speech-bubble-detector.onnx', '.'),
-        ('config.json', '.'),
         ('affinity/affinity_bubblyzer.js', 'affinity'),
         ('assets/*', 'assets'),
         ('assets/*', '.')

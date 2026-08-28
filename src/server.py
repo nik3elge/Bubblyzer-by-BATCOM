@@ -14,7 +14,23 @@ log.setLevel(logging.ERROR)
 processor_instance = None
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = getattr(sys, '_MEIPASS', ROOT_DIR)
-CONFIG_PATH = os.path.join(ROOT_DIR, "config.json") if os.path.exists(os.path.join(ROOT_DIR, "config.json")) else os.path.join(BASE_DIR, "config.json")
+
+def get_user_config_path():
+    """Get standard OS user configuration path for Bubblyzer."""
+    if sys.platform == "win32":
+        app_data = os.environ.get("APPDATA") or os.path.expanduser("~")
+        cfg_dir = os.path.join(app_data, "Bubblyzer")
+    elif sys.platform == "darwin":
+        cfg_dir = os.path.join(os.path.expanduser("~"), "Library", "Application Support", "Bubblyzer")
+    else:
+        cfg_dir = os.path.join(os.path.expanduser("~"), ".config", "bubblyzer")
+    
+    try:
+        os.makedirs(cfg_dir, exist_ok=True)
+    except Exception:
+        pass
+    
+    return os.path.join(cfg_dir, "config.json")
 
 def get_icon_base64():
     """Retrieve base64 data URI of the app icon."""
@@ -122,17 +138,27 @@ HTML_DASHBOARD = """
 """
 
 def load_config():
-    if os.path.exists(CONFIG_PATH):
+    user_cfg_path = get_user_config_path()
+    if os.path.exists(user_cfg_path):
         try:
-            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            with open(user_cfg_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    # Fallback to local config if present
+    local_cfg_path = os.path.join(ROOT_DIR, "config.json")
+    if os.path.exists(local_cfg_path):
+        try:
+            with open(local_cfg_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
             pass
     return {"confidence": 40, "group_frames": True, "mode": 0, "pages": "", "lang": "ru"}
 
 def save_config(cfg):
+    user_cfg_path = get_user_config_path()
     try:
-        with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+        with open(user_cfg_path, "w", encoding="utf-8") as f:
             json.dump(cfg, f, indent=4)
     except Exception as e:
         print(f"Failed to save config: {e}")
