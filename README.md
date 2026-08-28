@@ -4,7 +4,6 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-blue?style=flat-square)](https://github.com)
 [![AI Engine](https://img.shields.io/badge/AI%20Engine-ONNX%20Runtime%20%2B%20DirectML-success?style=flat-square)](https://onnxruntime.ai/)
 [![Integration](https://img.shields.io/badge/Affinity-Publisher%20%26%20Designer%20v2-orange?style=flat-square)](https://affinity.serif.com/)
-[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 
 **Bubblyzer by BATCOM** — это автономное приложение на базе нейросети **YOLOv8 ONNX** для автоматического распознавания речевых пузырей (бабблов) на страницах комиксов и манги с мгновенной расстановкой текстовых фреймов в **Affinity Publisher & Designer**.
 
@@ -36,14 +35,9 @@
 ---
 
 ### 2. Запуск сканирования в Affinity
-1. Откройте ваш документ комикса в **Affinity Publisher** или **Affinity Designer**.
-2. Откройте **Script Manager** (`Окно` → `Скрипты` или `Window` → `Scripting`).
-3. Запустите скрипт `affinity_bubblyzer.js`.
-4. В появившемся диалоговом окне выберите:
-   - Область обработки: *Текущая страница*, *Весь документ* или *Выборочные страницы*.
-   - Порог уверенности нейросети (по умолчанию 40%).
-   - Опцию группировки созданных рамок в отдельный слой `"Bubbles"`.
-5. Нажмите **ОК** — текстовые фреймы будут расставлены автоматически!
+1. Откройте проект комикса в **Affinity by Canva**.
+2. Установите скрипт `affinity_bubblyzer.js` с помощью [**Script Manager for Affinity**](https://jirikrblich.github.io/Affinity-script-manager/).
+3. Запустите скрипт — в появившемся диалоговом окне настройте порог и нажмите **ОК**. Нейросеть автоматически найдет пузыри и расставит текстовые фреймы!
 
 ---
 
@@ -97,4 +91,4 @@ build_windows.bat
 
 - Исходный код Bubblyzer распространяется под лицензией **MIT** (см. файл [LICENSE](LICENSE)).
 - Веса базовой модели детекции бабблов предоставлены исследователем **ogkalu** ([Hugging Face Model Card](https://huggingface.co/ogkalu/comic-speech-bubble-detector-yolov8m)).
-- Разработано командой **BATCOM**.
+- Разработано командой [**BATCOM**](https://boosty.to/nananabatcom).

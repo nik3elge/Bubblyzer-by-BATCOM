@@ -74,13 +74,13 @@ HTML_DASHBOARD = """
         <div class="instructions">
             <b>Как использовать:</b>
             <ol style="margin-left: 20px; margin-top: 8px;">
-                <li>Откройте проект комикса в <b>Affinity Publisher</b> или <b>Designer</b>.</li>
-                <li>Запустите скрипт <code>affinity_bubblyzer.js</code> через Script Manager.</li>
-                <li>Нейросеть автоматически найдет бабблы и расставит текстовые фреймы!</li>
+                <li>Откройте проект комикса в <b>Affinity by Canva</b>.</li>
+                <li>Установите скрипт <code>affinity_bubblyzer.js</code> с помощью <a href="https://jirikrblich.github.io/Affinity-script-manager/" target="_blank" style="color: var(--accent); text-decoration: underline;">Script Manager for Affinity</a>.</li>
+                <li>Запустите скрипт и нейросеть автоматически найдет пузыри и расставит текстовые фреймы!</li>
             </ol>
         </div>
         <div class="footer">
-            Bubblyzer by BATCOM &bull; Модель YOLOv8 ONNX (автор базы: ogkalu)
+            <a href="https://boosty.to/nananabatcom" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 600;">Bubblyzer by BATCOM</a> &bull; Модель YOLOv8 ONNX (автор базы: ogkalu)
         </div>
     </div>
 </body>
