@@ -76,20 +76,26 @@ HTML_DASHBOARD = """
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 32px; max-width: 600px; width: 100%; box-shadow: 0 15px 35px -5px rgba(0,0,0,0.6); }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 32px; max-width: 620px; width: 100%; box-shadow: 0 15px 35px -5px rgba(0,0,0,0.6); }
         .header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
         .logo-img { width: 56px; height: 56px; border-radius: 14px; box-shadow: 0 0 20px var(--accent-glow); object-fit: contain; }
         .logo-placeholder { width: 56px; height: 56px; background: #a7f175; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 0 20px var(--accent-glow); }
         .title h1 { font-size: 22px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
         .title h1 span.ver { font-size: 13px; font-weight: 600; color: #0e1318; background: var(--accent); padding: 2px 8px; border-radius: 6px; }
         .title p { font-size: 13px; color: var(--accent); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600; margin-top: 2px; }
+        
+        .lang-switcher { margin-left: auto; display: flex; background: rgba(14, 19, 24, 0.9); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 3px; }
+        .lang-btn { background: transparent; border: none; color: var(--text-muted); padding: 5px 12px; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; }
+        .lang-btn.active { background: var(--accent); color: #0e1318; box-shadow: 0 0 10px var(--accent-glow); }
+        .lang-btn:hover:not(.active) { color: #fff; background: rgba(255, 255, 255, 0.06); }
+
         .status-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(167, 241, 117, 0.1); border: 1px solid rgba(167, 241, 117, 0.3); color: var(--success); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 20px; }
         .status-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
         .info-box { background: rgba(14, 19, 24, 0.7); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
-        .info-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+        .info-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; font-weight: 600; }
         .info-val { font-size: 15px; font-weight: 600; color: #fff; }
-        .instructions { background: rgba(167, 241, 117, 0.04); border: 1px dashed rgba(167, 241, 117, 0.3); border-radius: 12px; padding: 16px; font-size: 13px; line-height: 1.6; color: var(--text-muted); }
+        .instructions { background: rgba(167, 241, 117, 0.04); border: 1px dashed rgba(167, 241, 117, 0.3); border-radius: 12px; padding: 18px; font-size: 13px; line-height: 1.6; color: var(--text-muted); }
         .instructions b { color: #fff; }
         .footer { margin-top: 24px; text-align: center; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 16px; }
     </style>
@@ -106,33 +112,87 @@ HTML_DASHBOARD = """
                 <h1>{{ app_name }} <span class="ver">v{{ version }}</span></h1>
                 <p>by {{ author }}</p>
             </div>
+            <div class="lang-switcher">
+                <button class="lang-btn {% if current_lang == 'ru' %}active{% endif %}" id="btn-ru" onclick="setLanguage('ru')">RU</button>
+                <button class="lang-btn {% if current_lang == 'en' %}active{% endif %}" id="btn-en" onclick="setLanguage('en')">EN</button>
+            </div>
         </div>
         <div class="status-badge">
             <div class="status-dot"></div>
-            Локальный сервер активен и готов к работе
+            <span id="t-status">Локальный сервер активен и готов к работе</span>
         </div>
         <div class="grid">
             <div class="info-box">
-                <div class="info-label">Аппаратный ускоритель</div>
+                <div class="info-label" id="t-accel-label">Аппаратный ускоритель</div>
                 <div class="info-val">⚡ {{ accelerator }}</div>
             </div>
             <div class="info-box">
-                <div class="info-label">Порт API</div>
+                <div class="info-label" id="t-port-label">Порт API</div>
                 <div class="info-val">http://127.0.0.1:{{ port }}</div>
             </div>
         </div>
         <div class="instructions">
-            <b>Как использовать:</b>
+            <b id="t-instr-title">Как использовать:</b>
             <ol style="margin-left: 20px; margin-top: 8px;">
-                <li>Откройте проект комикса в <b>Affinity by Canva</b>.</li>
-                <li>Установите скрипт <code>affinity_bubblyzer.js</code> с помощью <a href="https://jirikrblich.github.io/Affinity-script-manager/" target="_blank" style="color: var(--accent); text-decoration: underline;">Script Manager for Affinity</a>.</li>
-                <li>Запустите скрипт и нейросеть автоматически найдет пузыри и расставит текстовые фреймы!</li>
+                <li id="t-step-1">Откройте проект комикса в <b>Affinity by Canva</b>.</li>
+                <li id="t-step-2">Установите скрипт <code>affinity_bubblyzer.js</code> с помощью <a href="https://jirikrblich.github.io/Affinity-script-manager/" target="_blank" style="color: var(--accent); text-decoration: underline;">Script Manager for Affinity</a>.</li>
+                <li id="t-step-3">Запустите скрипт и нейросеть автоматически найдет пузыри и расставит текстовые фреймы!</li>
             </ol>
         </div>
         <div class="footer">
-            <a href="{{ boosty_url }}" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 600;">{{ app_name }} v{{ version }} by {{ author }}</a> &bull; Модель YOLOv8 ONNX (автор базы: ogkalu)
+            <a href="{{ boosty_url }}" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 600;">{{ app_name }} v{{ version }} by {{ author }}</a> &bull; <span id="t-footer-model">Модель YOLOv8 ONNX (автор базы: ogkalu)</span>
         </div>
     </div>
+
+    <script>
+        const translations = {
+            ru: {
+                status: "Локальный сервер активен и готов к работе",
+                accelLabel: "Аппаратный ускоритель",
+                portLabel: "Порт API",
+                instrTitle: "Как использовать:",
+                step1: "Откройте проект комикса в <b>Affinity by Canva</b>.",
+                step2: "Установите скрипт <code>affinity_bubblyzer.js</code> с помощью <a href=\\"https://jirikrblich.github.io/Affinity-script-manager/\\" target=\\"_blank\\" style=\\"color: var(--accent); text-decoration: underline;\\">Script Manager for Affinity</a>.",
+                step3: "Запустите скрипт и нейросеть автоматически найдет пузыри и расставит текстовые фреймы!",
+                footerModel: "Модель YOLOv8 ONNX (автор базы: ogkalu)"
+            },
+            en: {
+                status: "Local server is active and ready",
+                accelLabel: "Hardware Accelerator",
+                portLabel: "API Port",
+                instrTitle: "How to use:",
+                step1: "Open your comic project in <b>Affinity by Canva</b>.",
+                step2: "Install <code>affinity_bubblyzer.js</code> using <a href=\\"https://jirikrblich.github.io/Affinity-script-manager/\\" target=\\"_blank\\" style=\\"color: var(--accent); text-decoration: underline;\\">Script Manager for Affinity</a>.",
+                step3: "Run the script — AI will automatically detect speech bubbles and generate text frames!",
+                footerModel: "YOLOv8 ONNX Model (base weights by: ogkalu)"
+            }
+        };
+
+        function setLanguage(lang) {
+            const t = translations[lang] || translations.ru;
+            document.getElementById('t-status').innerHTML = t.status;
+            document.getElementById('t-accel-label').textContent = t.accelLabel;
+            document.getElementById('t-port-label').textContent = t.portLabel;
+            document.getElementById('t-instr-title').textContent = t.instrTitle;
+            document.getElementById('t-step-1').innerHTML = t.step1;
+            document.getElementById('t-step-2').innerHTML = t.step2;
+            document.getElementById('t-step-3').innerHTML = t.step3;
+            document.getElementById('t-footer-model').textContent = t.footerModel;
+
+            document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+            // Persist preference to server config and localStorage
+            try {
+                localStorage.setItem('bubblyzer_lang', lang);
+                fetch('/config?save=1&lang=' + lang);
+            } catch(e) {}
+        }
+
+        // Initialize language from server config or saved localStorage
+        const initialLang = localStorage.getItem('bubblyzer_lang') || '{{ current_lang }}' || 'ru';
+        setLanguage(initialLang);
+    </script>
 </body>
 </html>
 """
@@ -167,6 +227,8 @@ def save_config(cfg):
 def index():
     accelerator = processor_instance.active_provider if processor_instance else "Unknown"
     icon_data = get_icon_base64()
+    cfg = load_config()
+    current_lang = cfg.get("lang", "ru")
     return render_template_string(
         HTML_DASHBOARD,
         accelerator=accelerator,
@@ -175,7 +237,8 @@ def index():
         app_name=__app_name__,
         author=__author__,
         boosty_url=__boosty_url__,
-        icon_data=icon_data
+        icon_data=icon_data,
+        current_lang=current_lang
     )
 
 @app.route('/status', methods=['GET'])
