@@ -1,0 +1,13 @@
+# Core Runtime Dependencies for Bubblyzer by BATCOM
+flask>=3.0.0
+numpy>=1.24.0
+opencv-python>=4.8.0
+pillow>=10.0.0
+pystray>=0.19.5
+
+# ONNX Runtime (DirectML for Windows, standard for macOS/Linux)
+onnxruntime-directml>=1.18.0; sys_platform == 'win32'
+onnxruntime>=1.18.0; sys_platform != 'win32'
+
+# Build tool (optional for source builds)
+pyinstaller>=6.0.0

@@ -1,0 +1,43 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.spec.bak
+
+# Model weights & large binaries (downloaded/exported dynamically)
+*.pt
+*.onnx
+
+# Test files and generated artifacts
+annotated/
+comics/
+*.png
+!assets/*.png
+bubbles_coordinates.json
+Bubblyzer_temp_export*
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Affinity SDK internal docs
+docs/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
