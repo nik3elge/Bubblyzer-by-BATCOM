@@ -32,6 +32,17 @@ def get_user_config_path():
     
     return os.path.join(cfg_dir, "config.json")
 
+def get_temp_export_path():
+    """Get standard OS temporary export file path for Bubblyzer."""
+    cfg_path = get_user_config_path()
+    cfg_dir = os.path.dirname(cfg_path)
+    temp_dir = os.path.join(cfg_dir, "temp")
+    try:
+        os.makedirs(temp_dir, exist_ok=True)
+    except Exception:
+        pass
+    return os.path.join(temp_dir, "temp_export.png").replace("\\", "/")
+
 def get_icon_base64():
     """Retrieve base64 data URI of the app icon."""
     search_dirs = [
@@ -249,13 +260,14 @@ def status():
         "port": DEFAULT_PORT,
         "status": "ready",
         "accelerator": processor_instance.active_provider if processor_instance else "None",
-        "model_loaded": processor_instance is not None and processor_instance.session is not None
+        "model_loaded": processor_instance is not None and processor_instance.session is not None,
+        "temp_export_path": get_temp_export_path()
     })
 
 @app.route('/config', methods=['GET', 'POST'])
 def config_endpoint():
+    cfg = load_config()
     if request.method == 'POST' or request.args.get('save') == '1':
-        cfg = load_config()
         if request.is_json and request.json:
             cfg.update(request.json)
         else:
@@ -272,9 +284,10 @@ def config_endpoint():
             if 'lang' in request.args:
                 cfg['lang'] = request.args.get('lang')
         save_config(cfg)
-        return jsonify(cfg)
-    else:
-        return jsonify(load_config())
+    
+    response_data = dict(cfg)
+    response_data['temp_export_path'] = get_temp_export_path()
+    return jsonify(response_data)
 
 @app.route('/detect', methods=['POST', 'GET'])
 def detect():
