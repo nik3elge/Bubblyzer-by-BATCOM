@@ -12,20 +12,29 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 processor_instance = None
-BASE_DIR = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = getattr(sys, '_MEIPASS', ROOT_DIR)
+CONFIG_PATH = os.path.join(ROOT_DIR, "config.json") if os.path.exists(os.path.join(ROOT_DIR, "config.json")) else os.path.join(BASE_DIR, "config.json")
 
 def get_icon_base64():
     """Retrieve base64 data URI of the app icon."""
-    for fn, mime in [('Bubblyzer_minimalist_app_icon.svg', 'image/svg+xml'), ('app_icon.png', 'image/png')]:
-        path = os.path.join(BASE_DIR, fn)
-        if os.path.exists(path):
-            try:
-                with open(path, 'rb') as f:
-                    encoded = base64.b64encode(f.read()).decode('utf-8')
-                    return f"data:{mime};base64,{encoded}"
-            except Exception:
-                pass
+    search_dirs = [
+        os.path.join(BASE_DIR, "assets"),
+        BASE_DIR,
+        os.path.join(ROOT_DIR, "assets"),
+        os.path.join(os.getcwd(), "assets"),
+        os.getcwd()
+    ]
+    for sdir in search_dirs:
+        for fn, mime in [('Bubblyzer_minimalist_app_icon.svg', 'image/svg+xml'), ('app_icon.png', 'image/png')]:
+            path = os.path.join(sdir, fn)
+            if os.path.exists(path):
+                try:
+                    with open(path, 'rb') as f:
+                        encoded = base64.b64encode(f.read()).decode('utf-8')
+                        return f"data:{mime};base64,{encoded}"
+                except Exception:
+                    pass
     return ""
 
 HTML_DASHBOARD = """

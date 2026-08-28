@@ -6,16 +6,26 @@ from PIL import Image, ImageDraw
 
 def get_tray_image(size=(32, 32)):
     """Load application icon from file or generate fallback."""
-    base_dir = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_dir = getattr(sys, '_MEIPASS', root_dir)
     
-    for filename in ['tray_icon.png', 'app_icon.png', 'app_icon.ico']:
-        path = os.path.join(base_dir, filename)
-        if os.path.exists(path):
-            try:
-                img = Image.open(path).convert('RGBA')
-                return img.resize(size, Image.Resampling.LANCZOS)
-            except Exception:
-                pass
+    search_dirs = [
+        os.path.join(base_dir, "assets"),
+        base_dir,
+        os.path.join(root_dir, "assets"),
+        os.path.join(os.getcwd(), "assets"),
+        os.getcwd()
+    ]
+    
+    for sdir in search_dirs:
+        for filename in ['tray_icon.png', 'app_icon.png', 'app_icon.ico']:
+            path = os.path.join(sdir, filename)
+            if os.path.exists(path):
+                try:
+                    img = Image.open(path).convert('RGBA')
+                    return img.resize(size, Image.Resampling.LANCZOS)
+                except Exception:
+                    pass
 
     # Fallback procedural icon
     image = Image.new("RGBA", size, (0, 0, 0, 0))

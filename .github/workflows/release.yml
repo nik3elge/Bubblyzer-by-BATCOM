@@ -32,7 +32,7 @@ jobs:
 
       - name: Download / Verify ONNX model
         run: |
-          python export_onnx.py
+          python models/export_onnx.py
 
       - name: Build with PyInstaller
         run: |
@@ -43,7 +43,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path dist/Bubblyzer-Windows
           Copy-Item dist/Bubblyzer.exe dist/Bubblyzer-Windows/
-          Copy-Item affinity_bubblyzer.js dist/Bubblyzer-Windows/
+          Copy-Item affinity/affinity_bubblyzer.js dist/Bubblyzer-Windows/
           Copy-Item config.json dist/Bubblyzer-Windows/
           Compress-Archive -Path dist/Bubblyzer-Windows/* -DestinationPath dist/Bubblyzer-Windows-x64.zip
 
@@ -75,7 +75,7 @@ jobs:
 
       - name: Download / Verify ONNX model
         run: |
-          python export_onnx.py
+          python models/export_onnx.py
 
       - name: Build with PyInstaller on macOS
         run: |
@@ -83,21 +83,25 @@ jobs:
             --name=Bubblyzer \
             --onedir \
             --windowed \
-            --add-data="comic-speech-bubble-detector.onnx:." \
+            --paths="src" \
+            --icon="assets/app_icon.png" \
+            --add-data="models/comic-speech-bubble-detector.onnx:models" \
+            --add-data="models/comic-speech-bubble-detector.onnx:." \
             --add-data="config.json:." \
-            --add-data="affinity_bubblyzer.js:." \
+            --add-data="affinity/affinity_bubblyzer.js:affinity" \
+            --add-data="assets/*:assets" \
             --hidden-import=onnxruntime \
             --hidden-import=pystray \
             --hidden-import=PIL \
             --hidden-import=cv2 \
             --hidden-import=flask \
-            main.py
+            src/main.py
 
       - name: Prepare macOS Distribution Archive
         run: |
           mkdir -p dist/Bubblyzer-macOS
           cp -R dist/Bubblyzer.app dist/Bubblyzer-macOS/
-          cp affinity_bubblyzer.js dist/Bubblyzer-macOS/
+          cp affinity/affinity_bubblyzer.js dist/Bubblyzer-macOS/
           cp config.json dist/Bubblyzer-macOS/
           cd dist && zip -r Bubblyzer-macOS.zip Bubblyzer-macOS
 

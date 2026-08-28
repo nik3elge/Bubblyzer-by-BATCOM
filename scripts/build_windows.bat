@@ -1,16 +1,16 @@
 @echo off
 title Build Bubblyzer by BATCOM
-cd /d "%~dp0"
+cd /d "%~dp0\.."
 echo ========================================================
 echo       Building Standalone Bubblyzer.exe with PyInstaller
 echo ========================================================
 
 echo.
 echo [1/3] Checking model file...
-if not exist "comic-speech-bubble-detector.onnx" (
-    echo Model comic-speech-bubble-detector.onnx not found!
-    echo Running export_onnx.py first...
-    python export_onnx.py
+if not exist "models\comic-speech-bubble-detector.onnx" (
+    echo Model models\comic-speech-bubble-detector.onnx not found!
+    echo Running models\export_onnx.py first...
+    python models\export_onnx.py
 )
 
 echo.

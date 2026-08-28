@@ -2,7 +2,17 @@ import unittest
 import numpy as np
 import cv2
 import os
-from processor import BubbleProcessor
+import sys
+
+# Add project root and src directory to sys.path
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SRC_DIR = os.path.join(ROOT_DIR, "src")
+if SRC_DIR not in sys.path:
+    sys.path.insert(0, SRC_DIR)
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
+from src.processor import BubbleProcessor
 
 class TestBubbleProcessor(unittest.TestCase):
     def setUp(self):

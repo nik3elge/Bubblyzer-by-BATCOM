@@ -57,20 +57,38 @@ cd Bubblyzer
 pip install -r requirements.txt
 
 # Экспортируйте/скачайте ONNX модель
-python export_onnx.py
+python models/export_onnx.py
 
 # Запустите приложение в режиме трея
-python main.py
+python src/main.py
 
 # Или в консольном режиме для отладки
-python main.py --cli
+python src/main.py --cli
 ```
 
 ### Сборка standalone `.exe` (Windows)
 ```bat
-build_windows.bat
+scripts\build_windows.bat
 ```
 Собранный исполняемый файл появится в папке `dist/Bubblyzer.exe`.
+
+---
+
+## 📁 Структура проекта
+
+```text
+Bubblyzer/
+├── src/                     # Исходный код приложения (main, server, processor, tray, version)
+├── affinity/                # Скрипты интеграции для Affinity by Canva
+├── assets/                  # Иконки и графические ресурсы (.svg, .png, .ico)
+├── models/                  # ONNX модель и скрипт экспорта
+├── scripts/                 # Скрипты запуска и компиляции (.bat)
+├── tests/                   # Автоматические тесты (unit & e2e)
+├── .github/workflows/       # CI/CD автоматизация сборки для релизов
+├── dist/                    # Скомпилированный автономный Bubblyzer.exe
+├── bubblyzer.spec           # Конфигурация PyInstaller
+└── requirements.txt         # Зависимости Python
+```
 
 ---
 

@@ -12,16 +12,15 @@ CLASS_NAMES = {
 }
 
 def get_model_path():
-    """Locate the ONNX model file either in PyInstaller bundle or local folder."""
-    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-        base_dir = sys._MEIPASS
-    else:
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+    """Locate the ONNX model file either in PyInstaller bundle, models/ or local folder."""
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_dir = getattr(sys, '_MEIPASS', root_dir)
     
-    # Try exact match or relative paths
     candidates = [
+        os.path.join(base_dir, "models", "comic-speech-bubble-detector.onnx"),
         os.path.join(base_dir, "comic-speech-bubble-detector.onnx"),
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "comic-speech-bubble-detector.onnx"),
+        os.path.join(root_dir, "models", "comic-speech-bubble-detector.onnx"),
+        os.path.join(os.getcwd(), "models", "comic-speech-bubble-detector.onnx"),
         os.path.join(os.getcwd(), "comic-speech-bubble-detector.onnx")
     ]
     for p in candidates:

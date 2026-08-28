@@ -5,17 +5,22 @@ import os
 block_cipher = None
 
 a = Analysis(
-    ['main.py'],
-    pathex=['.'],
+    ['src/main.py'],
+    pathex=['src', '.'],
     binaries=[],
     datas=[
-        ('comic-speech-bubble-detector.onnx', '.'),
+        ('models/comic-speech-bubble-detector.onnx', 'models'),
+        ('models/comic-speech-bubble-detector.onnx', '.'),
         ('config.json', '.'),
-        ('affinity_bubblyzer.js', '.'),
-        ('app_icon.png', '.'),
-        ('app_icon.ico', '.'),
-        ('tray_icon.png', '.'),
-        ('Bubblyzer_minimalist_app_icon.svg', '.')
+        ('affinity/affinity_bubblyzer.js', 'affinity'),
+        ('assets/app_icon.png', 'assets'),
+        ('assets/app_icon.ico', 'assets'),
+        ('assets/tray_icon.png', 'assets'),
+        ('assets/Bubblyzer_minimalist_app_icon.svg', 'assets'),
+        ('assets/app_icon.png', '.'),
+        ('assets/app_icon.ico', '.'),
+        ('assets/tray_icon.png', '.'),
+        ('assets/Bubblyzer_minimalist_app_icon.svg', '.')
     ],
     hiddenimports=[
         'onnxruntime',
@@ -61,5 +66,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='app_icon.ico'
+    icon='assets/app_icon.ico'
 )

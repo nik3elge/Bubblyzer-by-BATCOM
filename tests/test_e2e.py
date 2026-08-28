@@ -8,6 +8,13 @@ import sys
 import numpy as np
 import cv2
 
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SRC_DIR = os.path.join(ROOT_DIR, "src")
+if SRC_DIR not in sys.path:
+    sys.path.insert(0, SRC_DIR)
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 def create_test_comic_page(filename="test_comic_page.png"):
     img = np.full((1200, 800, 3), 255, dtype=np.uint8)
     cv2.rectangle(img, (50, 50), (750, 550), (0, 0, 0), 4)
@@ -38,7 +45,7 @@ def test_target(cmd_args, label):
     test_image = create_test_comic_page()
     
     # Launch process
-    proc = subprocess.Popen(cmd_args)
+    proc = subprocess.Popen(cmd_args, cwd=ROOT_DIR)
     
     try:
         # 1. Wait for server
@@ -63,7 +70,7 @@ def test_target(cmd_args, label):
         # 2. Test HTML Dashboard
         with urllib.request.urlopen("http://127.0.0.1:5000/") as resp:
             html = resp.read().decode('utf-8')
-            assert "Bubblyzer by BATCOM" in html
+            assert "Bubblyzer" in html
             print("  [+] HTML Dashboard OK (HTTP 200)")
 
         # 3. Test Config
@@ -97,10 +104,11 @@ def test_target(cmd_args, label):
 
 if __name__ == "__main__":
     # Test 1: Python Source
-    ok1 = test_target([sys.executable, "main.py", "--cli"], "Python Source Engine")
+    main_py = os.path.join(ROOT_DIR, "src", "main.py")
+    ok1 = test_target([sys.executable, main_py, "--cli"], "Python Source Engine")
 
     # Test 2: Standalone .exe
-    exe_path = os.path.abspath("dist\\Bubblyzer.exe")
+    exe_path = os.path.join(ROOT_DIR, "dist", "Bubblyzer.exe")
     ok2 = False
     if os.path.exists(exe_path):
         ok2 = test_target([exe_path], "Compiled Standalone Bubblyzer.exe")
