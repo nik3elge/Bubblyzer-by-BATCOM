@@ -1,3 +1,7 @@
+<p align="center">
+  <b>Русский | <a href="README_ENG.md">English</a></b>
+</p>
+
 <div align="center">
 
 # 💬 Bubblyzer by BATCOM
@@ -5,7 +9,7 @@
 [![Release](https://img.shields.io/github/v/release/BATCOM/Bubblyzer?style=flat-square&color=a7f175)](https://github.com/BATCOM/Bubblyzer/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-blue?style=flat-square)](https://github.com/BATCOM/Bubblyzer/releases)
 [![AI Engine](https://img.shields.io/badge/AI%20Engine-ONNX%20Runtime%20%2B%20DirectML-success?style=flat-square)](https://onnxruntime.ai/)
-[![Integration](https://img.shields.io/badge/Affinity-by%20Canva-00eb8b?style=flat-square)](https://affinity.studio/)
+[![Integration](https://img.shields.io/badge/Affinity-by%20Canva-00eb8b?style=flat-square)](https://affinity.serif.com/)
 [![Boosty](https://img.shields.io/badge/Boosty-BATCOM-orange?style=flat-square&logo=boosty&logoColor=white)](https://boosty.to/nananabatcom/donate)
 
 **Умный инструмент на базе ИИ (YOLOv8 ONNX) для автоматического поиска диалоговых пузырей (бабблов) на страницах комиксов и манги с мгновенной расстановкой текстовых фреймов в Affinity by Canva (Publisher и Designer).**
