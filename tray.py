@@ -4,23 +4,26 @@ import webbrowser
 import threading
 from PIL import Image, ImageDraw
 
-def create_tray_image(size=(64, 64)):
-    """Generate a clean vector-like speech bubble icon for the system tray."""
+def create_tray_image(size=(32, 32)):
+    """Generate a high-visibility, crisp speech bubble icon for Windows/macOS tray."""
     image = Image.new("RGBA", size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
     
-    # Outer circle / bubble background (vibrant blue-indigo gradient look)
-    draw.rounded_rectangle([4, 6, 60, 48], radius=16, fill=(56, 189, 248, 255))
+    # Outer circle/bubble (Bright cyan #00d2ff with crisp edge)
+    # 32x32 coordinate space
+    draw.ellipse([2, 2, 29, 23], fill=(0, 210, 255, 255), outline=(255, 255, 255, 255), width=1)
     
-    # Bubble tail
-    tail_points = [(18, 46), (12, 60), (32, 46)]
-    draw.polygon(tail_points, fill=(56, 189, 248, 255))
-    
-    # Inner 3 dots (chat bubble look)
-    dot_color = (255, 255, 255, 255)
-    draw.ellipse([18, 23, 26, 31], fill=dot_color)
-    draw.ellipse([28, 23, 36, 31], fill=dot_color)
-    draw.ellipse([38, 23, 46, 31], fill=dot_color)
+    # Bubble tail (down-left)
+    tail_points = [(7, 21), (3, 29), (14, 21)]
+    draw.polygon(tail_points, fill=(0, 210, 255, 255), outline=(255, 255, 255, 255))
+    # Redraw inner triangle base to remove interior outline
+    draw.polygon([(7, 20), (8, 22), (13, 20)], fill=(0, 210, 255, 255))
+
+    # Inner 3 dark dots (high contrast)
+    dot_color = (15, 23, 42, 255) # Deep navy
+    draw.ellipse([8, 10, 11, 13], fill=dot_color)
+    draw.ellipse([14, 10, 17, 13], fill=dot_color)
+    draw.ellipse([20, 10, 23, 13], fill=dot_color)
     
     return image
 
@@ -56,10 +59,10 @@ class BubblyzerTray:
         accelerator = self.processor.active_provider if self.processor else "Auto"
 
         menu = pystray.Menu(
-            pystray.MenuItem("💬 Bubblyzer by BATCOM", None, enabled=False),
+            pystray.MenuItem("💬 Bubblyzer by BATCOM", self.open_web_dashboard, default=True),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("🟢 Сервер: http://127.0.0.1:5000", self.open_web_dashboard),
-            pystray.MenuItem(f"⚡ Ускоритель: {accelerator}", None, enabled=False),
+            pystray.MenuItem(f"🟢 Сервер: http://127.0.0.1:5000", self.open_web_dashboard),
+            pystray.MenuItem(f"⚡ Ускоритель: {accelerator}", lambda: None, enabled=False),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("🌐 Открыть статус в браузере", self.open_web_dashboard),
             pystray.MenuItem("📁 Открыть папку программы", self.open_app_folder),
@@ -67,7 +70,7 @@ class BubblyzerTray:
             pystray.MenuItem("❌ Выход", self.quit_app)
         )
 
-        image = create_tray_image()
+        image = create_tray_image((32, 32))
         self.icon = pystray.Icon(
             "Bubblyzer",
             image,
@@ -79,11 +82,11 @@ class BubblyzerTray:
         def notify_start():
             try:
                 self.icon.notify(
-                    f"Сервер активен (порт 5000).\nУскоритель: {accelerator}\nГотов к работе в Affinity!",
+                    f"Сервер активен на http://127.0.0.1:5000\nУскоритель: {accelerator}",
                     "Bubblyzer by BATCOM"
                 )
             except Exception:
                 pass
 
-        threading.Timer(1.0, notify_start).start()
+        threading.Timer(0.8, notify_start).start()
         self.icon.run()

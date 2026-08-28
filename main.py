@@ -2,8 +2,17 @@ import sys
 import os
 import threading
 import time
+import traceback
 
-# Ensure UTF-8 output in Windows console to prevent UnicodeEncodeError
+def log_error(msg):
+    try:
+        log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bubblyzer_error.log")
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {msg}\n")
+    except Exception:
+        pass
+
+# Ensure UTF-8 output in Windows console
 if sys.platform == "win32":
     try:
         if sys.stdout: sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -15,6 +24,7 @@ from processor import BubbleProcessor
 from server import start_server
 
 def main():
+    log_error("Bubblyzer main() starting...")
     print("=" * 60)
     print("        Bubblyzer by BATCOM — Comic Bubble Detector")
     print("=" * 60)
@@ -24,8 +34,11 @@ def main():
     print("\n[1/2] Загрузка модели нейросети ONNX...")
     try:
         processor.load_model(lambda msg: print(f"  -> {msg}"))
+        log_error(f"Model loaded: {processor.active_provider}")
     except Exception as e:
-        print(f"\n[ERROR] Не удалось загрузить модель: {e}")
+        err = f"Failed to load model: {e}\n{traceback.format_exc()}"
+        log_error(err)
+        print(f"\n[ERROR] {err}")
         sys.exit(1)
 
     port = 5000
@@ -40,11 +53,12 @@ def main():
         daemon=True
     )
     server_thread.start()
+    log_error("Flask server thread started.")
 
-    # CLI mode is ONLY active if explicitly requested with --cli
     is_cli = "--cli" in sys.argv
     
     if is_cli:
+        log_error("Running in explicit CLI mode.")
         print("  Режим: Консоль (нажмите Ctrl+C для остановки)")
         try:
             while True:
@@ -53,16 +67,20 @@ def main():
             print("\nСервер остановлен.")
             sys.exit(0)
     else:
-        # Launch System Tray
+        log_error("Attempting to initialize BubblyzerTray...")
         try:
             from tray import BubblyzerTray
             
             def on_quit():
+                log_error("Tray quit requested.")
                 os._exit(0)
 
             tray_app = BubblyzerTray(processor, on_quit)
+            log_error("Calling tray_app.run()...")
             tray_app.run()
         except Exception as e:
+            err = f"Tray failed: {e}\n{traceback.format_exc()}"
+            log_error(err)
             print(f"  Трей недоступен ({e}), работаем в консольном режиме.")
             try:
                 while True:
