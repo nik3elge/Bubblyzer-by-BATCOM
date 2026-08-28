@@ -4,27 +4,30 @@ import webbrowser
 import threading
 from PIL import Image, ImageDraw
 
-def create_tray_image(size=(32, 32)):
-    """Generate a high-visibility, crisp speech bubble icon for Windows/macOS tray."""
+def get_tray_image(size=(32, 32)):
+    """Load application icon from file or generate fallback."""
+    base_dir = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    
+    for filename in ['tray_icon.png', 'app_icon.png', 'app_icon.ico']:
+        path = os.path.join(base_dir, filename)
+        if os.path.exists(path):
+            try:
+                img = Image.open(path).convert('RGBA')
+                return img.resize(size, Image.Resampling.LANCZOS)
+            except Exception:
+                pass
+
+    # Fallback procedural icon
     image = Image.new("RGBA", size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
-    
-    # Outer circle/bubble (Bright cyan #00d2ff with crisp edge)
-    # 32x32 coordinate space
     draw.ellipse([2, 2, 29, 23], fill=(0, 210, 255, 255), outline=(255, 255, 255, 255), width=1)
-    
-    # Bubble tail (down-left)
     tail_points = [(7, 21), (3, 29), (14, 21)]
     draw.polygon(tail_points, fill=(0, 210, 255, 255), outline=(255, 255, 255, 255))
-    # Redraw inner triangle base to remove interior outline
     draw.polygon([(7, 20), (8, 22), (13, 20)], fill=(0, 210, 255, 255))
-
-    # Inner 3 dark dots (high contrast)
-    dot_color = (15, 23, 42, 255) # Deep navy
+    dot_color = (15, 23, 42, 255)
     draw.ellipse([8, 10, 11, 13], fill=dot_color)
     draw.ellipse([14, 10, 17, 13], fill=dot_color)
     draw.ellipse([20, 10, 23, 13], fill=dot_color)
-    
     return image
 
 class BubblyzerTray:
@@ -71,7 +74,7 @@ class BubblyzerTray:
             pystray.MenuItem("❌ Выход", self.quit_app)
         )
 
-        image = create_tray_image((32, 32))
+        image = get_tray_image((32, 32))
         self.icon = pystray.Icon(
             "Bubblyzer",
             image,
@@ -79,12 +82,11 @@ class BubblyzerTray:
             menu=menu
         )
 
-        # Notify user that server started
         def notify_start():
             try:
                 self.icon.notify(
                     f"Сервер активен на http://127.0.0.1:5000\nУскоритель: {accelerator}",
-                    "Bubblyzer by BATCOM"
+                    f"{__app_name__} v{__version__} by {__author__}"
                 )
             except Exception:
                 pass

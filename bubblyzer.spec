@@ -11,7 +11,11 @@ a = Analysis(
     datas=[
         ('comic-speech-bubble-detector.onnx', '.'),
         ('config.json', '.'),
-        ('affinity_bubblyzer.js', '.')
+        ('affinity_bubblyzer.js', '.'),
+        ('app_icon.png', '.'),
+        ('app_icon.ico', '.'),
+        ('tray_icon.png', '.'),
+        ('Bubblyzer_minimalist_app_icon.svg', '.')
     ],
     hiddenimports=[
         'onnxruntime',
@@ -57,5 +61,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=None
+    icon='app_icon.ico'
 )
