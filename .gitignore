@@ -18,6 +18,7 @@ dist/
 annotated/
 comics/
 *.png
+!*icon*.png
 !assets/*.png
 bubbles_coordinates.json
 Bubblyzer_temp_export*
