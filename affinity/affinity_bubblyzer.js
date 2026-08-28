@@ -54,6 +54,11 @@ if (!HttpReq) {
 const I18N = {
     ru: {
         dialogTitle: "Bubblyzer от BATCOM",
+        langGroupTitle: "Язык интерфейса / Language",
+        langLabel: "Выберите язык / Select language:",
+        langOptions: ["Русский (RU)", "English (EN)"],
+        refreshButton: "🔄  Применить и обновить окно",
+        langHintText: "💡 Язык сохраняется сразу. Нажмите «Обновить», чтобы перерисовать окно.",
         warningTitle: "⚠  Внимание",
         warningText: "Нейросеть ищет пузыри только с текстом. Не стирайте текст перед сканированием.",
         paramsTitle: "Параметры сканирования",
@@ -66,9 +71,6 @@ const I18N = {
         pagesLabel: "Номера страниц:",
         confLabel: "Порог уверенности (меньше = внимательнее):",
         groupSwitchLabel: "Группировать фреймы в слой?",
-        langGroupTitle: "Язык интерфейса / Language",
-        langLabel: "Выберите язык:",
-        langOptions: ["Русский (RU)", "English (EN)"],
         layerName: "Bubbles",
         noDoc: "Нет активного документа в Affinity.",
         noPages: "Не выбрано ни одной страницы для обработки.",
@@ -87,6 +89,11 @@ const I18N = {
     },
     en: {
         dialogTitle: "Bubblyzer by BATCOM",
+        langGroupTitle: "Language / Язык интерфейса",
+        langLabel: "Select language / Выберите язык:",
+        langOptions: ["Русский (RU)", "English (EN)"],
+        refreshButton: "🔄  Apply & Reload Dialog",
+        langHintText: "💡 Language is saved on selection. Click 'Reload' to refresh this window.",
         warningTitle: "⚠  Important",
         warningText: "The AI detects speech bubbles containing text. Do not erase text before scanning.",
         paramsTitle: "Detection Settings",
@@ -99,9 +106,6 @@ const I18N = {
         pagesLabel: "Page Numbers (e.g. 1-3, 5):",
         confLabel: "Confidence Threshold (lower = more sensitive):",
         groupSwitchLabel: "Group created frames into a layer?",
-        langGroupTitle: "Language / Язык интерфейса",
-        langLabel: "Select Language:",
-        langOptions: ["Русский (RU)", "English (EN)"],
         layerName: "Bubbles",
         noDoc: "No active document in Affinity.",
         noPages: "No valid pages selected for scanning.",
@@ -196,7 +200,7 @@ function checkExportSuccess(records) {
 async function processSpreads() {
     let doc = AffinityDocument.current;
     
-    // Синхронизируем настройки с сохраненными
+    // Синхронизируем настройки с сервером
     fetchSavedConfig();
 
     let currentLang = (savedSettings.lang === "en") ? "en" : "ru";
@@ -210,96 +214,141 @@ async function processSpreads() {
         return;
     }
 
-    // Создаем диалог
-    let dialog = Dialog.create(t.dialogTitle);
-    dialog.initialWidth = 460;
-
-    let col = dialog.addColumn();
-
-    // Блок предупреждения
-    let infoGroup = col.addGroup(t.warningTitle);
-    let desc = infoGroup.addStaticText("", t.warningText);
-    desc.isFullWidth = true;
-
-    // Блок параметров
-    let group = col.addGroup(t.paramsTitle);
-
-    let initialMode = (savedSettings.mode >= 0 && savedSettings.mode <= 2) ? savedSettings.mode : 0;
-    let radio = group.addRadioGroup(t.scopeLabel, t.scopeOptions, initialMode);
-    radio.isFullWidth = true;
-
-    let pagesText = group.addTextBox(t.pagesLabel, savedSettings.pages || "");
-    pagesText.isFullWidth = true;
-    pagesText.isEnabled = (initialMode === 2);
-
-    let initialConf = (savedSettings.confidence >= 1 && savedSettings.confidence <= 100) ? savedSettings.confidence : 40;
-    let confEditor = group.addUnitValueEditor(
-        t.confLabel,
-        UnitType.Number, UnitType.Number,
-        initialConf, 1, 100
-    )
-        .setShowPopupSlider(true)
-        .setPrecision(0);
-
-    let groupSwitch = group.addSwitch(t.groupSwitchLabel, savedSettings.groupFrames !== false);
-
-    // Блок выбора языка
-    let initialLangIndex = (savedSettings.lang === "en") ? 1 : 0;
-    let langRadio = group.addRadioGroup(t.langLabel, t.langOptions, initialLangIndex);
-    langRadio.isFullWidth = true;
-
-    radio.onValueChangedHandler = function() {
-        pagesText.isEnabled = (radio.selectedIndex === 2);
-    };
-    
-    let result = dialog.runModal();
-    
-    // В Affinity DialogResult.Ok = 0
-    if (result !== DialogResult.Ok && result !== DialogResult.OK && result !== 1 && result !== 0) {
-        console.log("Canceled. Result code was: " + result);
-        return;
-    }
-
-    // Сохраняем выбранные настройки
-    let selectedLang = (langRadio.selectedIndex === 1) ? "en" : "ru";
-    savedSettings.mode = radio.selectedIndex;
-    savedSettings.pages = pagesText.text || "";
-    savedSettings.confidence = Math.round(confEditor.value);
-    savedSettings.groupFrames = Boolean(groupSwitch.value);
-    savedSettings.lang = selectedLang;
-    persistConfig(savedSettings);
-
-    // Обновляем текущие тексты в соответствии с выбранным языком
-    t = I18N[selectedLang];
-
-    let mode = radio.selectedIndex; // 0 = Current, 1 = All, 2 = Specific
-    let spreadsList = doc.spreads.toArray();
+    let userCompletedDialog = false;
+    let minConfidence = 0.40;
+    let useLayerGroup = true;
     let spreadsToScan = [];
-    
-    if (mode === 0) {
-        spreadsToScan.push(doc.currentSpread);
-    } else if (mode === 1) {
-        spreadsToScan = spreadsList;
-    } else if (mode === 2) {
-        let indices = parsePageRanges(pagesText.text, spreadsList.length);
-        for (let i of indices) {
-            spreadsToScan.push(spreadsList[i]);
-        }
-    }
-    
-    if (spreadsToScan.length === 0) {
-        console.log(t.noPages);
-        if (typeof app !== 'undefined' && app.alert) {
-            app.alert(t.noPages, t.alertTitleWarning);
-        }
-        return;
-    }
-    
-    let minConfidence = confEditor.value / 100.0;
-    if (isNaN(minConfidence) || minConfidence < 0) minConfidence = 0.0;
-    if (minConfidence > 1.0) minConfidence = 1.0;
 
-    let useLayerGroup = groupSwitch.value;
+    // Цикл диалога (позволяет мгновенно обновить окно при смене языка)
+    while (!userCompletedDialog) {
+        currentLang = (savedSettings.lang === "en") ? "en" : "ru";
+        t = I18N[currentLang];
+
+        let dialog = Dialog.create(t.dialogTitle);
+        dialog.initialWidth = 470;
+
+        let col = dialog.addColumn();
+
+        // 1. БЛОК ВЫБОРА ЯЗЫКА НА САМОМ ВЕРХУ
+        let langGroup = col.addGroup("🌐  " + t.langGroupTitle);
+        langGroup.enableSeparator = true;
+
+        let initialLangIndex = (savedSettings.lang === "en") ? 1 : 0;
+        let langRadio = langGroup.addRadioGroup(t.langLabel, t.langOptions, initialLangIndex);
+        langRadio.isFullWidth = true;
+
+        let reloadBtnSet = langGroup.addButtonSet("", [t.refreshButton]);
+        reloadBtnSet.isFullWidth = true;
+
+        let langHint = langGroup.addStaticText("", t.langHintText);
+        langHint.isFullWidth = true;
+
+        // 2. БЛОК ПРЕДУПРЕЖДЕНИЯ
+        let infoGroup = col.addGroup(t.warningTitle);
+        infoGroup.enableSeparator = true;
+        let desc = infoGroup.addStaticText("", t.warningText);
+        desc.isFullWidth = true;
+
+        // 3. БЛОК ПАРАМЕТРОВ СКАНА
+        let group = col.addGroup(t.paramsTitle);
+
+        let initialMode = (savedSettings.mode >= 0 && savedSettings.mode <= 2) ? savedSettings.mode : 0;
+        let radio = group.addRadioGroup(t.scopeLabel, t.scopeOptions, initialMode);
+        radio.isFullWidth = true;
+
+        let pagesText = group.addTextBox(t.pagesLabel, savedSettings.pages || "");
+        pagesText.isFullWidth = true;
+        pagesText.isEnabled = (initialMode === 2);
+
+        let initialConf = (savedSettings.confidence >= 1 && savedSettings.confidence <= 100) ? savedSettings.confidence : 40;
+        let confEditor = group.addUnitValueEditor(
+            t.confLabel,
+            UnitType.Number, UnitType.Number,
+            initialConf, 1, 100
+        )
+            .setShowPopupSlider(true)
+            .setPrecision(0);
+
+        let groupSwitch = group.addSwitch(t.groupSwitchLabel, savedSettings.groupFrames !== false);
+
+        let triggerReload = false;
+
+        radio.onValueChangedHandler = function() {
+            pagesText.isEnabled = (radio.selectedIndex === 2);
+        };
+
+        langRadio.onValueChangedHandler = function() {
+            let newLang = (langRadio.selectedIndex === 1) ? "en" : "ru";
+            savedSettings.lang = newLang;
+            persistConfig(savedSettings);
+        };
+
+        reloadBtnSet.onValueChangedHandler = function() {
+            let newLang = (langRadio.selectedIndex === 1) ? "en" : "ru";
+            savedSettings.lang = newLang;
+            savedSettings.mode = radio.selectedIndex;
+            savedSettings.pages = pagesText.text || "";
+            savedSettings.confidence = Math.round(confEditor.value);
+            savedSettings.groupFrames = Boolean(groupSwitch.value);
+            persistConfig(savedSettings);
+            triggerReload = true;
+        };
+        
+        let result = dialog.runModal();
+        
+        // В Affinity DialogResult.Ok = 0
+        if (result !== DialogResult.Ok && result !== DialogResult.OK && result !== 1 && result !== 0) {
+            console.log("Canceled. Result code was: " + result);
+            return;
+        }
+
+        // Сохраняем текущие значения
+        let selectedLang = (langRadio.selectedIndex === 1) ? "en" : "ru";
+        savedSettings.mode = radio.selectedIndex;
+        savedSettings.pages = pagesText.text || "";
+        savedSettings.confidence = Math.round(confEditor.value);
+        savedSettings.groupFrames = Boolean(groupSwitch.value);
+        savedSettings.lang = selectedLang;
+        persistConfig(savedSettings);
+
+        // Если пользователь нажал кнопку перезагрузки или сменил язык в окне и нажал перезагрузить
+        if (triggerReload) {
+            continue;
+        }
+
+        // Пользователь нажал OK — переходим к сканированию
+        userCompletedDialog = true;
+        t = I18N[selectedLang];
+
+        let mode = radio.selectedIndex; // 0 = Current, 1 = All, 2 = Specific
+        let spreadsList = doc.spreads.toArray();
+        spreadsToScan = [];
+        
+        if (mode === 0) {
+            spreadsToScan.push(doc.currentSpread);
+        } else if (mode === 1) {
+            spreadsToScan = spreadsList;
+        } else if (mode === 2) {
+            let indices = parsePageRanges(pagesText.text, spreadsList.length);
+            for (let i of indices) {
+                spreadsToScan.push(spreadsList[i]);
+            }
+        }
+        
+        if (spreadsToScan.length === 0) {
+            console.log(t.noPages);
+            if (typeof app !== 'undefined' && app.alert) {
+                app.alert(t.noPages, t.alertTitleWarning);
+            }
+            return;
+        }
+        
+        minConfidence = confEditor.value / 100.0;
+        if (isNaN(minConfidence) || minConfidence < 0) minConfidence = 0.0;
+        if (minConfidence > 1.0) minConfidence = 1.0;
+
+        useLayerGroup = groupSwitch.value;
+    }
 
     let tempPath;
     if (typeof app !== 'undefined' && app.userDesktopPath) {
