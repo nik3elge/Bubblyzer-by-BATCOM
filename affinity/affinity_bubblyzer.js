@@ -1,7 +1,7 @@
 /**
  * name: Bubblyzer by BATCOM
  * description: Comic speech bubble detector powered by ONNX AI and Affinity integration.
- * version: 1.0.0
+ * version: 1.1.0
  */
 
 const docModule = require('/document');

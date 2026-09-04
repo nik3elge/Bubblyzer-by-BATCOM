@@ -4,13 +4,13 @@
 
 <img src="./assets/bubblyzer_demo.gif" width="100%">
 
-# 💬 Bubblyzer by BATCOM
+# 💬 Bubblyzer by [BATCOM](https://nananabat.com)
 
 [![Release](https://img.shields.io/github/v/release/nik3elge/Bubblyzer-by-BATCOM?style=flat-square&color=a7f175)](https://github.com/nik3elge/Bubblyzer-by-BATCOM/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-blue?style=flat-square)](https://github.com/nik3elge/Bubblyzer-by-BATCOM/releases)
 [![AI Engine](https://img.shields.io/badge/AI%20Engine-ONNX%20Runtime%20%2B%20DirectML-success?style=flat-square)](https://onnxruntime.ai/)
 [![Integration](https://img.shields.io/badge/Affinity-by%20Canva-bbee81?style=flat-square)](https://affinity.serif.com/)
-[![Boosty](https://img.shields.io/badge/Boosty-BATCOM-orange?style=flat-square&logo=boosty&logoColor=white)](https://boosty.to/nananabatcom/donate)
+[![Boosty](https://img.shields.io/badge/Boosty-BATCOM-orange?style=flat-square&logo=boosty&logoColor=white)](https://boosty.to/nananabatcom)
 
 **An AI-powered tool (**YOLOv8 ONNX**) for automatic comic and manga speech bubble detection with instant text frame placement in Affinity by Canva.**
 
@@ -45,12 +45,15 @@
 
 ---
 
-### Step 2. Run Bubble Detection in Affinity
-1. Open your comic project in **Affinity by Canva**.
-2. Install the `affinity_bubblyzer.js` script using the free [**Script Manager for Affinity**](https://jirikrblich.github.io/Affinity-script-manager/).
-3. Run the script from the Script Manager in Affinity.
-4. In the dialog, select your target page range, adjust the confidence threshold, and click **OK**.
-5. The AI will detect all speech bubbles and automatically create ready-to-type text frames!
+### Step 2. Configure Affinity & Run Bubble Detection
+1. **Affinity Setup (one-time requirement):**
+   - Enable MCP server: navigate to `Edit → Settings → Model Context Protocol` and check **Enable Affinity MCP** (*restart Affinity after enabling!*).
+   - Open Scripts panel: navigate to `Window → General → Scripts` and create any category if none exists (e.g. *My Scripts*).
+2. Open your comic project in **Affinity by Canva**.
+3. In the Bubblyzer web dashboard ([**http://127.0.0.1:28734**](http://127.0.0.1:28734)), click **"Install script into Affinity"** (the script will be registered automatically via Affinity's built-in MCP bridge). You can also install it via [**Script Manager for Affinity**](https://jirikrblich.github.io/Affinity-script-manager/).
+4. Run the script by clicking it in the **Scripts** panel in Affinity.
+5. In the dialog, select your target page range, adjust the confidence threshold, and click **OK**.
+6. The AI will detect all speech bubbles and automatically create ready-to-type text frames!
 
 ---
 
@@ -58,4 +61,4 @@
 
 - Bubblyzer source code is distributed under the **MIT License** (see [LICENSE](LICENSE)).
 - Base speech bubble detection model weights provided by researcher **ogkalu** ([Hugging Face](https://huggingface.co/ogkalu/comic-speech-bubble-detector-yolov8m)).
-- Created by the [**BATCOM**](https://boosty.to/nananabatcom) team • [Support on Boosty](https://boosty.to/nananabatcom/donate).
+- Created by the [**BATCOM**](https://nananabat.com) team • [Support on Boosty](https://boosty.to/nananabatcom).

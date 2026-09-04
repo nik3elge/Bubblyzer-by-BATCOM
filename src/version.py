@@ -2,9 +2,10 @@
 Single source of truth for Bubblyzer version, network ports, and metadata.
 """
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __app_name__ = "Bubblyzer"
 __author__ = "BATCOM"
+__author_url__ = "https://nananabat.com"
 __boosty_url__ = "https://boosty.to/nananabatcom"
 
 # Dedicated non-standard port to avoid conflicts with AirPlay (5000), React (3000), Vite (5173), etc.
