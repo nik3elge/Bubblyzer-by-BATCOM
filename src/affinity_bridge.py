@@ -7,6 +7,7 @@ import urllib.request
 import urllib.parse
 import urllib.error
 import threading
+from version import __version__
 
 DEFAULT_AFFINITY_MCP_URL = "http://localhost:6767"
 DEFAULT_SCRIPT_TITLE = "Bubblyzer by BATCOM"
@@ -191,7 +192,7 @@ class AffinityMcpClient:
                 {
                     "protocolVersion": proto_version,
                     "capabilities": {},
-                    "clientInfo": {"name": "Bubblyzer", "version": "1.1.0"}
+                    "clientInfo": {"name": "Bubblyzer", "version": __version__}
                 },
                 timeout=timeout
             )
@@ -205,7 +206,7 @@ class AffinityMcpClient:
                         {
                             "protocolVersion": supported[0],
                             "capabilities": {},
-                            "clientInfo": {"name": "Bubblyzer", "version": "1.1.0"}
+                            "clientInfo": {"name": "Bubblyzer", "version": __version__}
                         },
                         timeout=timeout
                     )

@@ -34,6 +34,10 @@ jobs:
         run: |
           python models/export_onnx.py
 
+      - name: Remove build-only export dependencies
+        run: |
+          pip uninstall -y ultralytics torch torchvision
+
       - name: Build with PyInstaller
         run: |
           pyinstaller --clean bubblyzer.spec
@@ -76,6 +80,10 @@ jobs:
         run: |
           python models/export_onnx.py
 
+      - name: Remove build-only export dependencies
+        run: |
+          pip uninstall -y ultralytics torch torchvision
+
       - name: Build with PyInstaller on macOS
         run: |
           pyinstaller --clean \
@@ -88,6 +96,12 @@ jobs:
             --add-data="models/comic-speech-bubble-detector.onnx:." \
             --add-data="affinity/affinity_bubblyzer.js:affinity" \
             --add-data="assets/*:assets" \
+            --exclude-module=torch \
+            --exclude-module=torchvision \
+            --exclude-module=ultralytics \
+            --exclude-module=scipy \
+            --exclude-module=matplotlib \
+            --exclude-module=tkinter \
             --hidden-import=onnxruntime \
             --hidden-import=pystray \
             --hidden-import=PIL \
