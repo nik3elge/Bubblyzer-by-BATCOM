@@ -10,10 +10,8 @@ a = Analysis(
     binaries=[],
     datas=[
         ('models/comic-speech-bubble-detector.onnx', 'models'),
-        ('models/comic-speech-bubble-detector.onnx', '.'),
         ('affinity/affinity_bubblyzer.js', 'affinity'),
-        ('assets/*', 'assets'),
-        ('assets/*', '.')
+        ('assets/*', 'assets')
     ],
     hiddenimports=[
         'onnxruntime',
@@ -30,7 +28,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['tkinter', 'torch', 'ultralytics', 'torchvision', 'scipy', 'matplotlib'],
+    excludes=['tkinter', 'torch', 'ultralytics', 'torchvision', 'scipy', 'matplotlib', 'pandas', 'sympy', 'networkx'],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,

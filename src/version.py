@@ -2,7 +2,7 @@
 Single source of truth for Bubblyzer version, network ports, and metadata.
 """
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 __app_name__ = "Bubblyzer"
 __author__ = "BATCOM"
 __author_url__ = "https://nananabat.com"

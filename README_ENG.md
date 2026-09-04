@@ -36,10 +36,13 @@
 
 ### Step 1. Download & Launch Bubblyzer
 1. Go to the [**Releases**](../../releases) page and download the archive for your operating system:
-   - **Windows:** `Bubblyzer-Windows-x64.zip`
-   - **macOS:** `Bubblyzer-macOS.zip`
+   - **Windows:** `Bubblyzer-Windows-x64.zip` *(Windows 10/11 64-bit)*
+   - **macOS:** `Bubblyzer-macOS.zip` *(macOS 12+ Apple Silicon & Intel)*
 2. Extract the archive to any convenient location.
 3. Launch `Bubblyzer.exe` (on Windows) or `Bubblyzer.app` (on macOS).
+   > **💡 Launch Notes:**
+   > - **Windows:** On fresh Windows systems, if you encounter a missing DLL error, install the official [Microsoft Visual C++ 2015-2022 Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe). If Windows SmartScreen displays a warning, click *“More info” ➡️ “Run anyway”*.
+   > - **macOS:** Since the application is distributed as free open-source software without a paid Apple Developer certificate, Gatekeeper may show an untrusted developer prompt on first launch. Right-click `Bubblyzer.app` ➡️ select **“Open”** (or clear the quarantine attribute in Terminal via `xattr -cr /path/to/Bubblyzer.app`).
 4. The <img src="./assets/tray_icon.png" style="height: 17px; vertical-align: middle;"> icon will appear in your system tray — the local AI server is ready on port `28734`.
 5. *(Optional)* Click the tray icon or open [**http://127.0.0.1:28734**](http://127.0.0.1:28734) in your browser to check server status, active hardware accelerator (DirectML / CoreML / CPU), and the web dashboard.
 

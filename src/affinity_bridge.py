@@ -34,7 +34,7 @@ def get_bundled_script_code():
     return None
 
 class AffinityMcpClient:
-    """Client for Affinity Designer/Photo/Publisher local MCP bridge."""
+    """Client for Affinity by Canva local MCP bridge."""
 
     def __init__(self, base_url=None):
         if base_url is None:

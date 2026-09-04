@@ -35,10 +35,13 @@
 
 ### Шаг 1. Скачайте и запустите Bubblyzer
 1. Перейдите в раздел [**Releases**](../../releases) и скачайте архив для вашей операционной системы:
-   - **Windows:** `Bubblyzer-Windows-x64.zip`
-   - **macOS:** `Bubblyzer-macOS.zip`
+   - **Windows:** `Bubblyzer-Windows-x64.zip` *(Windows 10/11 64-bit)*
+   - **macOS:** `Bubblyzer-macOS.zip` *(macOS 12+ Apple Silicon & Intel)*
 2. Распакуйте архив в любое удобное место.
 3. Запустите `Bubblyzer.exe` (на Windows) или `Bubblyzer.app` (на macOS).
+   > **💡 Примечания по запуску:**
+   > - **Windows:** Если система новая и выдает ошибку о недостающей DLL, установите стандартный [Microsoft Visual C++ 2015-2022 Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe). При предупреждении SmartScreen («Защитник Windows защитил ваш ПК») нажмите *«Подробнее» ➡️ «Выполнить в любом случае»*.
+   > - **macOS:** Так как приложение распространяется бесплатно без платной подписи Apple Developer, при первом открытии может появиться предупреждение Gatekeeper. Нажмите правой кнопкой мыши по `Bubblyzer.app` ➡️ выберите **«Открыть»** (или снимите карантин командой в Терминале: `xattr -cr /путь/к/Bubblyzer.app`).
 4. В системном трее появится иконка <img src="./assets/tray_icon.png" style="height: 17px; vertical-align: middle;"> — локальный ИИ-сервер готов к работе на порту `28734`.
 5. *(Опционально)* Кликните по иконке в трее или откройте в браузере [**http://127.0.0.1:28734**](http://127.0.0.1:28734), чтобы посмотреть статус готовности сервера, активный видеоускоритель (DirectML / CoreML / CPU) и веб-панель.
 

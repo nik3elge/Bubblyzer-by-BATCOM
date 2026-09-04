@@ -24,19 +24,19 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Install dependencies
+      - name: Export ONNX model (isolated environment)
+        shell: pwsh
+        run: |
+          python -m venv export_venv
+          .\export_venv\Scripts\python -m pip install --upgrade pip
+          .\export_venv\Scripts\pip install huggingface_hub ultralytics onnx
+          .\export_venv\Scripts\python models/export_onnx.py
+          Remove-Item -Recurse -Force export_venv
+
+      - name: Install runtime dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install huggingface_hub ultralytics onnx
-
-      - name: Download / Verify ONNX model
-        run: |
-          python models/export_onnx.py
-
-      - name: Remove build-only export dependencies
-        run: |
-          pip uninstall -y ultralytics torch torchvision
 
       - name: Build with PyInstaller
         run: |
@@ -70,19 +70,18 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Install dependencies
+      - name: Export ONNX model (isolated environment)
+        run: |
+          python -m venv export_venv
+          export_venv/bin/python -m pip install --upgrade pip
+          export_venv/bin/pip install huggingface_hub ultralytics onnx
+          export_venv/bin/python models/export_onnx.py
+          rm -rf export_venv
+
+      - name: Install runtime dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install huggingface_hub ultralytics onnx
-
-      - name: Download / Verify ONNX model
-        run: |
-          python models/export_onnx.py
-
-      - name: Remove build-only export dependencies
-        run: |
-          pip uninstall -y ultralytics torch torchvision
 
       - name: Build with PyInstaller on macOS
         run: |
@@ -93,7 +92,6 @@ jobs:
             --paths="src" \
             --icon="assets/app_icon.png" \
             --add-data="models/comic-speech-bubble-detector.onnx:models" \
-            --add-data="models/comic-speech-bubble-detector.onnx:." \
             --add-data="affinity/affinity_bubblyzer.js:affinity" \
             --add-data="assets/*:assets" \
             --exclude-module=torch \
@@ -101,12 +99,20 @@ jobs:
             --exclude-module=ultralytics \
             --exclude-module=scipy \
             --exclude-module=matplotlib \
+            --exclude-module=pandas \
+            --exclude-module=sympy \
+            --exclude-module=networkx \
             --exclude-module=tkinter \
             --hidden-import=onnxruntime \
             --hidden-import=pystray \
+            --hidden-import=pystray._darwin \
             --hidden-import=PIL \
+            --hidden-import=PIL.Image \
+            --hidden-import=PIL.ImageDraw \
             --hidden-import=cv2 \
             --hidden-import=flask \
+            --hidden-import=werkzeug \
+            --hidden-import=jinja2 \
             src/main.py
 
       - name: Prepare macOS Distribution Archive
