@@ -9,7 +9,7 @@
 [![Release](https://img.shields.io/github/v/release/nik3elge/Bubblyzer-by-BATCOM?style=flat-square&color=a7f175)](https://github.com/nik3elge/Bubblyzer-by-BATCOM/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-blue?style=flat-square)](https://github.com/nik3elge/Bubblyzer-by-BATCOM/releases)
 [![AI Engine](https://img.shields.io/badge/AI%20Engine-ONNX%20Runtime%20%2B%20DirectML-success?style=flat-square)](https://onnxruntime.ai/)
-[![Integration](https://img.shields.io/badge/Affinity-by%20Canva-bbee81?style=flat-square)](https://affinity.serif.com/)
+[![Affinity by Canva](https://img.shields.io/badge/Affinity%20by%20Canva-Mid%20July%20%2726%20(4646)-bbee81?style=flat-square)](https://affinity.serif.com/)
 [![Boosty](https://img.shields.io/badge/Boosty-BATCOM-orange?style=flat-square&logo=boosty&logoColor=white)](https://boosty.to/nananabatcom)
 
 **An AI-powered tool (**YOLOv8 ONNX**) for automatic comic and manga speech bubble detection with instant text frame placement in Affinity by Canva.**
