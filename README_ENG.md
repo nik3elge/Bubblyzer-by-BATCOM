@@ -34,29 +34,32 @@
 
 ## 🚀 How to Use
 
-### Step 1. Download & Launch Bubblyzer
-1. Go to the [**Releases**](../../releases) page and download the archive for your operating system:
-   - **Windows:** `Bubblyzer-Windows-x64.zip` *(Windows 10/11 64-bit)*
-   - **macOS:** `Bubblyzer-macOS.zip` *(macOS 12+ Apple Silicon & Intel)*
-2. Extract the archive to any convenient location.
-3. Launch `Bubblyzer.exe` (on Windows) or `Bubblyzer.app` (on macOS).
-   > **💡 Launch Notes:**
-   > - **Windows:** On fresh Windows systems, if you encounter a missing DLL error, install the official [Microsoft Visual C++ 2015-2022 Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe). If Windows SmartScreen displays a warning, click *“More info” ➡️ “Run anyway”*.
-   > - **macOS:** Since the application is distributed as free open-source software without a paid Apple Developer certificate, Gatekeeper may show an untrusted developer prompt on first launch. Right-click `Bubblyzer.app` ➡️ select **“Open”** (or clear the quarantine attribute in Terminal via `xattr -cr /path/to/Bubblyzer.app`).
-4. The <img src="./assets/tray_icon.png" style="height: 17px; vertical-align: middle;"> icon will appear in your system tray — the local AI server is ready on port `28734`.
-5. *(Optional)* Click the tray icon or open [**http://127.0.0.1:28734**](http://127.0.0.1:28734) in your browser to check server status, active hardware accelerator (DirectML / CoreML / CPU), and the web dashboard.
+### Step 1. Initial Affinity by Canva Setup (One-time)
+1. **Enable MCP Server:** navigate to `Edit → Settings → Model Context Protocol` and check **Enable Affinity MCP** (*restart Affinity after enabling!*).
+2. **Open Scripts Panel:** navigate to `Window → General → Scripts` and create any category if none exists yet (e.g. *My Scripts*).
 
 ---
 
-### Step 2. Configure Affinity & Run Bubble Detection
-1. **Affinity Setup (one-time requirement):**
-   - Enable MCP server: navigate to `Edit → Settings → Model Context Protocol` and check **Enable Affinity MCP** (*restart Affinity after enabling!*).
-   - Open Scripts panel: navigate to `Window → General → Scripts` and create any category if none exists (e.g. *My Scripts*).
-2. Open your comic project in **Affinity by Canva**.
-3. In the Bubblyzer web dashboard ([**http://127.0.0.1:28734**](http://127.0.0.1:28734)), click **"Install script into Affinity"** (the script will be registered automatically via Affinity's built-in MCP bridge). You can also install it via [**Script Manager for Affinity**](https://jirikrblich.github.io/Affinity-script-manager/).
-4. Run the script by clicking it in the **Scripts** panel in Affinity.
-5. In the dialog, select your target page range, adjust the confidence threshold, and click **OK**.
-6. The AI will detect all speech bubbles and automatically create ready-to-type text frames!
+### Step 2. Launch Bubblyzer & Install Script
+1. Go to the [**Releases**](../../releases) page and download the archive for your operating system:
+   - **Windows:** `Bubblyzer-Windows-x64.zip` *(Windows 10/11 64-bit)*
+   - **macOS:** `Bubblyzer-macOS.zip` *(macOS 12+ Apple Silicon & Intel)*
+2. Extract the archive and launch `Bubblyzer.exe` (on Windows) or `Bubblyzer.app` (on macOS).
+   > **💡 Launch Notes:**
+   > - **Windows:** On fresh systems, if you encounter a missing DLL error, install official [Microsoft Visual C++ 2015-2022 Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe). If Windows SmartScreen displays a warning, click *“More info” ➡️ “Run anyway”*.
+   > - **macOS:** Since the application is distributed as free open-source software without a paid Apple Developer certificate, Gatekeeper may show an untrusted developer prompt on first launch. Right-click `Bubblyzer.app` ➡️ select **“Open”** (or clear the quarantine attribute in Terminal via `xattr -cr /path/to/Bubblyzer.app`).
+3. The <img src="./assets/tray_icon.png" style="height: 17px; vertical-align: middle;"> icon will appear in your system tray. Click it (or open [**http://127.0.0.1:28734**](http://127.0.0.1:28734) in your browser) and click **"Install script into Affinity"**.
+   *(The script will be registered automatically via Affinity's MCP bridge. You can also install it manually via [Script Manager for Affinity](https://jirikrblich.github.io/Affinity-script-manager/)).*
+
+---
+
+### Step 3. Run Bubble Detection in Affinity
+1. Open your comic project in **Affinity by Canva**.
+2. In the **Scripts** panel, click the **Bubblyzer by BATCOM** script.
+3. In the dialog, select your target page range, adjust the confidence threshold, and click **OK**.
+4. The AI will detect all speech bubbles and automatically create ready-to-type text frames!
+
+> **💡 Tip:** For everyday workflow, simply keep Bubblyzer running in the tray and launch the script directly from Affinity!
 
 ---
 
