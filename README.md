@@ -4,7 +4,7 @@
 
 <img src="./assets/bubblyzer_demo.gif" width="100%">
 
-# Bubblyzer от [BATCOM](https://nananabat.com)
+# Bubblyzer от BATCOM
 
 [![Release](https://img.shields.io/github/v/release/nik3elge/Bubblyzer-by-BATCOM?style=flat-square&color=a7f175)](https://github.com/nik3elge/Bubblyzer-by-BATCOM/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-blue?style=flat-square)](https://github.com/nik3elge/Bubblyzer-by-BATCOM/releases)
