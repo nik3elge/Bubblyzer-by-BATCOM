@@ -34,8 +34,9 @@
 ## 🚀 Как использовать
 
 ### Шаг 1. Первичная настройка Affinity by Canva (выполняется 1 раз)
-1. **Включите MCP-сервер:** перейдите в меню `Edit → Settings → Model Context Protocol` и включите **Enable Affinity MCP** (*после включения обязательно перезапустите Affinity!*).
+1. **Включите MCP-сервер:** перейдите в меню `Edit → Settings → Model Context Protocol` и включите **Enable Affinity MCP**.
 2. **Откройте панель скриптов:** перейдите в меню `Window → General → Scripts` и создайте в ней любую категорию, если ее еще нет (например, *My Scripts*).
+3. **Перезапустите Affinity by Canva**, чтобы применились настройки MCP-сервера.
 
 ---
 

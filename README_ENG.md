@@ -35,8 +35,9 @@
 ## 🚀 How to Use
 
 ### Step 1. Initial Affinity by Canva Setup (One-time)
-1. **Enable MCP Server:** navigate to `Edit → Settings → Model Context Protocol` and check **Enable Affinity MCP** (*restart Affinity after enabling!*).
+1. **Enable MCP Server:** navigate to `Edit → Settings → Model Context Protocol` and check **Enable Affinity MCP**.
 2. **Open Scripts Panel:** navigate to `Window → General → Scripts` and create any category if none exists yet (e.g. *My Scripts*).
+3. **Restart Affinity by Canva** so the MCP server settings take effect.
 
 ---
 
