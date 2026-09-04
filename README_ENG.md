@@ -47,10 +47,10 @@
 
 ### Step 2. Configure Affinity & Run Bubble Detection
 1. **Affinity Setup (one-time requirement):**
-   - Enable MCP server: navigate to `Edit → Settings → Model Context Protocol` and check **Enable Affinity MCP** (*restart Affinity after enabling!*).
-   - Open Scripts panel: navigate to `Window → General → Scripts` and create any category if none exists (e.g. *My Scripts*).
+   - Enable MCP server: navigate to `Edit → Settings → Model Context Protocol` and check **Enable Affinity MCP** (*restart Affinity after enabling!*).
+   - Open Scripts panel: navigate to `Window → General → Scripts` and create any category if none exists (e.g. *My Scripts*).
 2. Open your comic project in **Affinity by Canva**.
-3. In the Bubblyzer web dashboard ([**http://127.0.0.1:28734**](http://127.0.0.1:28734)), click **"Install script into Affinity"** (the script will be registered automatically via Affinity's built-in MCP bridge). You can also install it via [**Script Manager for Affinity**](https://jirikrblich.github.io/Affinity-script-manager/).
+3. In the Bubblyzer web dashboard ([**http://127.0.0.1:28734**](http://127.0.0.1:28734)), click **"Install script into Affinity"** (the script will be registered automatically via Affinity's built-in MCP bridge). You can also install it via [**Script Manager for Affinity**](https://jirikrblich.github.io/Affinity-script-manager/).
 4. Run the script by clicking it in the **Scripts** panel in Affinity.
 5. In the dialog, select your target page range, adjust the confidence threshold, and click **OK**.
 6. The AI will detect all speech bubbles and automatically create ready-to-type text frames!
