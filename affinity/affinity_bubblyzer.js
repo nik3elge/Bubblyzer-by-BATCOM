@@ -1,13 +1,58 @@
 /**
  * name: Bubblyzer by BATCOM
  * description: Comic speech bubble detector powered by ONNX AI and Affinity integration.
- * version: 1.1.2
+ * version: 1.2.0
  */
 
 const docModule = require('/document');
 const AffinityDocument = docModule.Document;
 const FileExportOptions = docModule.FileExportOptions;
 const FileExportArea = docModule.FileExportArea;
+
+let ErrorCode = null;
+try {
+    ErrorCode = require('affinity:common').ErrorCode;
+} catch (e) {}
+
+function isPermissionDenied(err) {
+    if (!err) return false;
+    if (ErrorCode && err.errorCode === ErrorCode.PERMISSION_DENIED) return true;
+    let msg = String(err.message || err);
+    return msg.indexOf("PERMISSION_DENIED") !== -1 || msg.indexOf("Permission denied") !== -1;
+}
+
+function getCandidateTempPaths(doc) {
+    let paths = [];
+    if (typeof app !== 'undefined' && app.userDesktopPath) {
+        let base = app.userDesktopPath.replace(/[/\\]+$/, '');
+        paths.push(base + "/Bubblyzer_temp_export.png");
+    }
+    try {
+        if (doc && doc.path) {
+            let docDir = doc.path.replace(/[/\\][^/\\]*$/, '');
+            if (docDir && !paths.some(p => p.startsWith(docDir))) {
+                paths.push(docDir + "/Bubblyzer_temp_export.png");
+            }
+        }
+    } catch (e) {}
+    paths.push("Bubblyzer_temp_export.png");
+    return paths;
+}
+
+function isDialogOk(result) {
+    if (result === null || result === undefined) return false;
+    if (result === 0 || result === 1) return true;
+    if (result == 0) return true;
+    if (typeof DialogResult !== 'undefined' && DialogResult) {
+        if (result === DialogResult.Ok || result === DialogResult.OK) return true;
+        if (result == DialogResult.Ok) return true;
+        if (DialogResult.Ok && typeof result.equals === 'function' && result.equals(DialogResult.Ok)) return true;
+        if (typeof result.value !== 'undefined' && DialogResult.Ok && (result.value === DialogResult.Ok.value || result.value === 0)) return true;
+    }
+    if (typeof result.value !== 'undefined' && (result.value === 0 || result.value === 1)) return true;
+    let str = String(result).toLowerCase();
+    return str.indexOf("ok") !== -1 || str === "0";
+}
 
 const { StoryBuilder } = require('/storybuilder');
 const { FrameTextNodeDefinition, ContainerNodeDefinition } = require('/nodes');
@@ -73,6 +118,8 @@ const I18N = {
         noDoc: "Нет активного документа в Affinity.",
         noPages: "Не выбрано ни одной страницы для обработки.",
         exportFailed: "Не удалось экспортировать страницу.",
+        permissionFsError: "Affinity заблокировал экспорт страницы (PERMISSION_DENIED).\n\nВ обновлении Affinity скриптам требуются явные разрешения безопасности:\n\n1. Откройте в меню: Edit → Settings → Scripting (Правка → Настройки → Скриптинг).\n2. Включите галочки 'Access the file system' и 'Access networks'.\n3. В блоке 'File System access' нажмите '+' и добавьте папку Рабочего стола (Desktop) или папку с проектом.\n4. В панели Scripts Library нажмите правой кнопкой мыши на 'Bubblyzer by BATCOM' → выберите 'Mark as Trusted'.",
+        permissionNetError: "Affinity заблокировал сетевое соединение (PERMISSION_DENIED).\n\nСкрипту требуется доступ к локальной сети для связи с сервером Bubblyzer:\n\n1. Откройте: Edit → Settings → Scripting (Правка → Настройки → Скриптинг).\n2. Включите галочку 'Access networks' (Доступ к сети).\n3. В панели Scripts Library нажмите правой кнопкой на скрипт → 'Mark as Trusted'.",
         noHttp: "В вашей версии Affinity не найден модуль HttpRequest / Network API.",
         connectError: (url, err) => `Не удалось подключиться к серверу Bubblyzer (${url}).\n\nОшибка: ${err}\n\nПожалуйста, проверьте, что локальный сервер Bubblyzer запущен!`,
         emptyResponse: "Сервер Bubblyzer вернул пустой ответ.",
@@ -106,6 +153,8 @@ const I18N = {
         noDoc: "No active document in Affinity.",
         noPages: "No valid pages selected for scanning.",
         exportFailed: "Failed to export spread.",
+        permissionFsError: "Affinity blocked file export (PERMISSION_DENIED).\n\nThe new Affinity update requires explicit script permissions:\n\n1. Go to: Edit → Settings → Scripting.\n2. Enable 'Access the file system' and 'Access networks'.\n3. Under 'File System access', click '+' and add Desktop (or your comic folder).\n4. In Scripts Library panel, right-click 'Bubblyzer by BATCOM' → select 'Mark as Trusted'.",
+        permissionNetError: "Affinity blocked network connection (PERMISSION_DENIED).\n\nThe script requires local network access to communicate with Bubblyzer:\n\n1. Go to: Edit → Settings → Scripting.\n2. Enable 'Access networks'.\n3. In Scripts Library panel, right-click 'Bubblyzer by BATCOM' → select 'Mark as Trusted'.",
         noHttp: "HttpRequest / Network API module was not found in your Affinity version.",
         connectError: (url, err) => `Could not connect to Bubblyzer server (${url}).\n\nError: ${err}\n\nPlease make sure the Bubblyzer app is running!`,
         emptyResponse: "Bubblyzer server returned an empty response.",
@@ -264,19 +313,29 @@ async function processSpreads() {
         };
         
         let result = dialog.runModal();
+        let isOk = isDialogOk(result);
+        console.log(`Dialog completed with result: ${result}, isOk: ${isOk}`);
         
-        // В Affinity DialogResult.Ok = 0
-        if (result !== DialogResult.Ok && result !== DialogResult.OK && result !== 1 && result !== 0) {
+        if (!isOk) {
             console.log("Canceled. Result code was: " + result);
             return;
         }
 
+        function extractVal(prop, defaultVal) {
+            if (prop === null || prop === undefined) return defaultVal;
+            if (typeof prop === 'number' || typeof prop === 'boolean' || typeof prop === 'string') return prop;
+            if (typeof prop.value !== 'undefined') return prop.value;
+            return defaultVal;
+        }
+
         // Сохраняем текущие значения
-        let selectedLang = (langRadio.selectedIndex === 1) ? "en" : "ru";
-        savedSettings.mode = radio.selectedIndex;
+        let langIdx = extractVal(langRadio.selectedIndex, 0);
+        let selectedLang = (langIdx === 1) ? "en" : "ru";
+        savedSettings.mode = extractVal(radio.selectedIndex, 0);
         savedSettings.pages = pagesText.text || "";
-        savedSettings.confidence = Math.round(confEditor.value);
-        savedSettings.groupFrames = Boolean(groupSwitch.value);
+        let rawConf = extractVal(confEditor.value, 40);
+        savedSettings.confidence = Math.round(Number(rawConf) || 40);
+        savedSettings.groupFrames = Boolean(extractVal(groupSwitch.value, true));
         savedSettings.lang = selectedLang;
         persistConfig(savedSettings);
 
@@ -289,12 +348,25 @@ async function processSpreads() {
         userCompletedDialog = true;
         t = I18N[selectedLang];
 
-        let mode = radio.selectedIndex; // 0 = Current, 1 = All, 2 = Specific
-        let spreadsList = doc.spreads.toArray();
+        let mode = savedSettings.mode; // 0 = Current, 1 = All, 2 = Specific
+        let spreadsList = [];
+        try {
+            if (doc.spreads && typeof doc.spreads.toArray === 'function') {
+                spreadsList = doc.spreads.toArray();
+            } else if (doc.spreads) {
+                spreadsList = Array.from(doc.spreads);
+            }
+        } catch (e) {
+            console.log("Could not convert spreads to array:", e.message || e);
+        }
+
         spreadsToScan = [];
-        
         if (mode === 0) {
-            spreadsToScan.push(doc.currentSpread);
+            if (doc.currentSpread) {
+                spreadsToScan.push(doc.currentSpread);
+            } else if (spreadsList.length > 0) {
+                spreadsToScan.push(spreadsList[0]);
+            }
         } else if (mode === 1) {
             spreadsToScan = spreadsList;
         } else if (mode === 2) {
@@ -304,6 +376,8 @@ async function processSpreads() {
             }
         }
         
+        console.log(`Document spreads total: ${spreadsList.length}, spreads to scan: ${spreadsToScan.length}`);
+
         if (spreadsToScan.length === 0) {
             console.log(t.noPages);
             if (typeof app !== 'undefined' && app.alert) {
@@ -312,21 +386,14 @@ async function processSpreads() {
             return;
         }
         
-        minConfidence = confEditor.value / 100.0;
+        minConfidence = savedSettings.confidence / 100.0;
         if (isNaN(minConfidence) || minConfidence < 0) minConfidence = 0.0;
         if (minConfidence > 1.0) minConfidence = 1.0;
 
-        useLayerGroup = groupSwitch.value;
+        useLayerGroup = savedSettings.groupFrames;
     }
 
-    let tempPath;
-    if (typeof app !== 'undefined' && app.userDesktopPath) {
-        let base = app.userDesktopPath.replace(/[/\\]+$/, '');
-        tempPath = base + "/Bubblyzer_temp_export.png";
-    } else {
-        tempPath = "Bubblyzer_temp_export.png";
-    }
-
+    let tempFilesToClean = new Set();
     let successPagesCount = 0;
     let totalBubblesCount = 0;
     let fatalError = null;
@@ -348,14 +415,38 @@ async function processSpreads() {
             let exportOptions = FileExportOptions.createWithPresetName("PNG");
             let exportArea = FileExportArea.createForCurrentSpread();
             
-            console.log(`Exporting page to ${tempPath}...`);
-            let records = doc.export(tempPath, exportOptions, exportArea, null);
-            
-            let success = checkExportSuccess(records);
-            
-            if (!success) {
-                console.error(t.exportFailed);
-                continue;
+            let usedTempPath = null;
+            let exportSucceeded = false;
+            let lastExportError = null;
+            let candidatePaths = getCandidateTempPaths(doc);
+
+            for (let candidate of candidatePaths) {
+                try {
+                    console.log(`Exporting page to ${candidate}...`);
+                    let records = doc.export(candidate, exportOptions, exportArea, null);
+                    if (checkExportSuccess(records)) {
+                        exportSucceeded = true;
+                        usedTempPath = candidate;
+                        tempFilesToClean.add(candidate);
+                        break;
+                    }
+                } catch (err) {
+                    lastExportError = err;
+                    console.error(`Export failed for ${candidate}: ${err.message || err}`);
+                    if (!isPermissionDenied(err)) {
+                        break;
+                    }
+                }
+            }
+
+            if (!exportSucceeded) {
+                if (isPermissionDenied(lastExportError)) {
+                    fatalError = t.permissionFsError;
+                } else {
+                    fatalError = t.exportFailed + (lastExportError ? ` (${lastExportError.message || lastExportError})` : "");
+                }
+                console.error(fatalError);
+                break;
             }
             
             if (!HttpReq) {
@@ -366,7 +457,7 @@ async function processSpreads() {
 
             let responseStr = null;
             try {
-                let url = `${SERVER_URL}/detect?image_path=` + encodeURIComponent(tempPath) + "&cleanup=true";
+                let url = `${SERVER_URL}/detect?image_path=` + encodeURIComponent(usedTempPath) + "&cleanup=true";
                 let request = HttpReq.create(url, "GET");
                 let reqResult = request.do();
                 
@@ -386,7 +477,11 @@ async function processSpreads() {
                     responseStr = reqResult;
                 }
             } catch (e) {
-                fatalError = t.connectError(SERVER_URL, e.message || e);
+                if (isPermissionDenied(e)) {
+                    fatalError = t.permissionNetError;
+                } else {
+                    fatalError = t.connectError(SERVER_URL, e.message || e);
+                }
                 console.error(fatalError);
                 break;
             }
@@ -462,8 +557,10 @@ async function processSpreads() {
             totalBubblesCount += filtered.length;
         }
     } finally {
-        // Автоматически удаляем временный PNG после завершения сканирования
-        await removeFileSafe(tempPath);
+        // Автоматически удаляем временные файлы после завершения сканирования
+        for (let filePath of tempFilesToClean) {
+            await removeFileSafe(filePath);
+        }
     }
 
     if (fatalError) {
@@ -485,4 +582,10 @@ async function processSpreads() {
     }
 }
 
-processSpreads();
+processSpreads().catch(err => {
+    console.error("Unhandled error in Bubblyzer script:", err.message || err);
+    if (typeof app !== 'undefined' && app.alert) {
+        let msg = isPermissionDenied(err) ? I18N.ru.permissionFsError : ("Ошибка выполнения Bubblyzer:\n\n" + (err.stack || err.message || err));
+        app.alert(msg, "Bubblyzer — Ошибка");
+    }
+});

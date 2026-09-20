@@ -51,7 +51,10 @@ class BubblyzerTray:
         webbrowser.open(DEFAULT_SERVER_URL)
 
     def open_app_folder(self, icon=None, item=None):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+        if getattr(sys, 'frozen', False):
+            base_dir = os.path.dirname(sys.executable)
+        else:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         if sys.platform == 'win32':
             os.startfile(base_dir)
         elif sys.platform == 'darwin':

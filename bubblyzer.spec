@@ -10,7 +10,7 @@ a = Analysis(
     binaries=[],
     datas=[
         ('models/comic-speech-bubble-detector.onnx', 'models'),
-        ('affinity/affinity_bubblyzer.js', 'affinity'),
+        ('affinity/Bubblyzer.afscript', 'affinity'),
         ('assets/*', 'assets')
     ],
     hiddenimports=[

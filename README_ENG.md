@@ -9,7 +9,7 @@
 [![Release](https://img.shields.io/github/v/release/nik3elge/Bubblyzer-by-BATCOM?style=flat-square&color=a7f175)](https://github.com/nik3elge/Bubblyzer-by-BATCOM/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-blue?style=flat-square)](https://github.com/nik3elge/Bubblyzer-by-BATCOM/releases)
 [![AI Engine](https://img.shields.io/badge/AI%20Engine-ONNX%20Runtime%20%2B%20DirectML-success?style=flat-square)](https://onnxruntime.ai/)
-[![Affinity by Canva](https://img.shields.io/badge/Affinity%20by%20Canva-Mid%20July%20%2726%20(4646)-bbee81?style=flat-square)](https://affinity.serif.com/)
+[![Affinity by Canva](https://img.shields.io/badge/Affinity%20by%20Canva-Mid%20Sept%20%2726%20(4850)-bbee81?style=flat-square)](https://affinity.serif.com/)
 [![Boosty](https://img.shields.io/badge/Boosty-BATCOM-orange?style=flat-square&logo=boosty&logoColor=white)](https://boosty.to/nananabatcom)
 
 **An AI-powered tool (**YOLOv8 ONNX**) for automatic comic and manga speech bubble detection with instant text frame placement in Affinity by Canva.**
@@ -25,7 +25,7 @@
   - **Windows:** `DirectML` (works on **all** GPUs: NVIDIA, AMD Radeon, Intel Arc / UHD).
   - **macOS:** `CoreML` (full support for Apple Silicon M1 / M2 / M3 / M4 and Apple Neural Engine).
   - **Automatic CPU Fallback:** If no GPU is found, seamlessly switches to CPU execution.
-- **🎨 Native Integration with Affinity by Canva:** The `affinity_bubblyzer.js` script scans your pages and generates precise `Frame Text` nodes directly over detected speech bubbles.
+- **🎨 Native Integration with Affinity by Canva:** The official `Bubblyzer.afscript` package scans your pages and generates precise `Frame Text` nodes directly over detected speech bubbles.
 - **🌐 Bilingual UI:** Full support for both **English** and **Russian** languages in the Affinity dialog and local web dashboard.
 - **🔒 100% Private & Offline:** All image processing runs locally on your machine. No telemetry, no cloud uploads.
 - **☕ Quiet Tray Mode:** Sits quietly in your system tray without interrupting your creative workflow.
@@ -35,9 +35,12 @@
 ## 🚀 How to Use
 
 ### Step 1. Initial Affinity by Canva Setup (One-time)
-1. **Enable MCP Server:** navigate to `Edit → Settings → Model Context Protocol` and check **Enable Affinity MCP**.
-2. **Open Scripts Panel:** navigate to `Window → General → Scripts` and create any category if none exists yet (e.g. *My Scripts*).
-3. **Restart Affinity by Canva** so the MCP server settings take effect.
+1. In Affinity, navigate to `Edit → Settings → Scripting` (on macOS: `Affinity → Settings → Scripting`).
+2. Check **Enable Affinity Scripting**.
+3. Under **Default Permissions**, enable:
+   - ☑ **Access the file system** (disk access for temporary page previews)
+   - ☑ **Access networks** (local network access to communicate with the Bubblyzer AI server)
+4. Under **File System access**, click **`Add`** and add your **Desktop** folder. The script temporarily exports page previews to Desktop to send them to the AI (optionally, you can also add your project folder).
 
 ---
 
@@ -49,8 +52,12 @@
    > **💡 Launch Notes:**
    > - **Windows:** On fresh systems, if you encounter a missing DLL error, install official [Microsoft Visual C++ 2015-2022 Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe). If Windows SmartScreen displays a warning, click *“More info” ➡️ “Run anyway”*.
    > - **macOS:** Since the application is distributed as free open-source software without a paid Apple Developer certificate, Gatekeeper may show an untrusted developer prompt on first launch. Right-click `Bubblyzer.app` ➡️ select **“Open”** (or clear the quarantine attribute in Terminal via `xattr -cr /path/to/Bubblyzer.app`).
-3. The <img src="./assets/tray_icon.png" style="height: 17px; vertical-align: middle;"> icon will appear in your system tray. Click it (or open [**http://127.0.0.1:28734**](http://127.0.0.1:28734) in your browser) and click **"Install script into Affinity"**.
-   *(The script will be registered automatically via Affinity's MCP bridge. You can also install it manually via [Script Manager for Affinity](https://jirikrblich.github.io/Affinity-script-manager/)).*
+3. **Import Script into Affinity:**
+   - In Affinity, open `Window → Scripting → Scripts Library`.
+   - On your target category row (e.g. **Default**), click the **menu icon on the right** (list icon `:=`) and select **Import Script...** ➔ choose `Bubblyzer.afscript` from the unpacked application folder.
+   > **💡 Tip:** The top panel header menu (`v`) contains "Import Scripts..." for entire category archives (`.afscripts`), whereas importing a single script ("Import Script...") is found specifically in the category's own menu.
+4. **Mark Script as Trusted (Affinity Security):**
+   - In the **Scripts Library** panel, right-click the installed **Bubblyzer by BATCOM** script and select **Mark as Trusted**.
 
 ---
 

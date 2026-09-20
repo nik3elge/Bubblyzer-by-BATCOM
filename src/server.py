@@ -3,9 +3,8 @@ import sys
 import json
 import base64
 import logging
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify, render_template_string, send_file
 from version import __version__, __app_name__, __author__, __author_url__, __boosty_url__, DEFAULT_PORT, DEFAULT_HOST, DEFAULT_SERVER_URL
-from affinity_bridge import check_affinity_status, install_bubblyzer_script, execute_bubblyzer_script
 
 app = Flask(__name__)
 # Suppress default flask logging
@@ -98,38 +97,11 @@ HTML_DASHBOARD = """
         .info-box { background: rgba(14, 19, 24, 0.7); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
         .info-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; font-weight: 600; }
         .info-val { font-size: 15px; font-weight: 600; color: #fff; }
-
-        .affinity-card { background: rgba(167, 241, 117, 0.04); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 20px; }
-        .affinity-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
-        .affinity-title { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #fff; }
-        .affinity-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(14, 19, 24, 0.9); border: 1px solid var(--border); padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; color: var(--text-muted); }
-        .affinity-dot { width: 7px; height: 7px; border-radius: 50%; background: #64748b; }
-        .affinity-dot.connected { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
-        .affinity-dot.installed { background: #38bdf8; box-shadow: 0 0 6px #38bdf8; }
-        .affinity-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5; }
-        .affinity-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-        .action-btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 9px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; }
-        .action-btn.primary { background: var(--accent); color: #0e1318; }
-        .action-btn.primary:hover:not(:disabled) { box-shadow: 0 0 12px var(--accent-glow); filter: brightness(1.05); }
-        .action-btn.secondary { background: rgba(255, 255, 255, 0.08); color: #fff; border-color: var(--border); }
-        .action-btn.secondary:hover:not(:disabled) { background: rgba(255, 255, 255, 0.14); border-color: var(--text-muted); }
-        .action-btn.icon-btn { padding: 8px 10px; background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border-color: var(--border); }
-        .action-btn.icon-btn:hover:not(:disabled) { color: #fff; background: rgba(255, 255, 255, 0.1); }
-        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        
-        .lucide-icon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
-        .lucide-icon.spin { animation: lucide-spin 0.8s linear infinite; }
-        @keyframes lucide-spin { 100% { transform: rotate(360deg); } }
-        .accent-icon { stroke: var(--accent); }
-
-        .affinity-feedback { margin-top: 10px; padding: 8px 12px; border-radius: 8px; font-size: 12px; line-height: 1.4; }
-        .affinity-feedback.success { background: rgba(167, 241, 117, 0.12); border: 1px solid rgba(167, 241, 117, 0.3); color: var(--accent); }
-        .affinity-feedback.error { background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.3); color: #fca5a5; }
-        .affinity-feedback.info { background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #7dd3fc; }
-
         .instructions { background: rgba(167, 241, 117, 0.04); border: 1px dashed rgba(167, 241, 117, 0.3); border-radius: 12px; padding: 18px; font-size: 13px; line-height: 1.6; color: var(--text-muted); }
         .instructions b { color: #fff; }
         .instructions code { background: rgba(255, 255, 255, 0.08); padding: 1px 5px; border-radius: 4px; color: var(--text); font-size: 12px; }
+        .instructions a { color: var(--accent); text-decoration: underline; font-weight: 600; }
+        .instructions a:hover { opacity: 0.85; }
 
         .boosty-container { margin-top: 20px; display: flex; justify-content: center; }
         .boosty-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, #f15f2c 0%, #f33d35 100%); color: #ffffff; text-decoration: none; font-weight: 600; font-size: 13px; padding: 10px 22px; border-radius: 12px; transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease; box-shadow: 0 4px 14px rgba(241, 95, 44, 0.35); }
@@ -175,36 +147,11 @@ HTML_DASHBOARD = """
             </div>
         </div>
 
-        <div class="affinity-card">
-            <div class="affinity-header">
-                <div class="affinity-title">
-                    <svg class="lucide-icon accent-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
-                    <b id="t-affinity-title"></b>
-                </div>
-                <div class="affinity-badge" id="affinity-badge">
-                    <div class="affinity-dot" id="affinity-dot"></div>
-                    <span id="affinity-status-text"></span>
-                </div>
-            </div>
-            <p class="affinity-desc" id="t-affinity-desc"></p>
-            <div class="affinity-actions">
-                <button class="action-btn primary" id="btn-install" onclick="installAffinityScript()">
-                    <svg class="lucide-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                    <span id="t-btn-install"></span>
-                </button>
-                <button class="action-btn icon-btn" id="btn-refresh-affinity" onclick="checkAffinityStatus(true)">
-                    <svg id="icon-refresh" class="lucide-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
-                </button>
-            </div>
-            <div class="affinity-feedback" id="affinity-feedback" style="display: none;"></div>
-        </div>
-
         <div class="instructions">
             <b id="t-instr-title"></b>
             <ol style="margin-left: 20px; margin-top: 8px;">
-                <li id="t-step-req" style="margin-bottom: 6px;"></li>
-                <li id="t-step-1" style="margin-bottom: 6px;"></li>
-                <li id="t-step-2" style="margin-bottom: 6px;"></li>
+                <li id="t-step-1" style="margin-bottom: 8px;"></li>
+                <li id="t-step-2" style="margin-bottom: 8px;"></li>
                 <li id="t-step-3"></li>
             </ol>
         </div>
@@ -234,22 +181,10 @@ HTML_DASHBOARD = """
                 status: "Локальный сервер активен и готов к работе",
                 accelLabel: "Аппаратный ускоритель",
                 portLabel: "Порт API",
-                affinityTitle: "Интеграция с Affinity",
-                affinityDesc: "Установка скрипта в Affinity без сторонних менеджеров.",
-                btnInstall: "Установить скрипт в Affinity",
-                btnRefreshTitle: "Обновить статус подключения",
-                affChecking: "Проверка...",
-                affOnline: "Affinity подключен",
-                affInstalled: "Affinity подключен (скрипт установлен)",
-                affOffline: "Affinity не обнаружен",
-                installSuccess: "Скрипт успешно установлен в панель Scripts в Affinity!",
-                installAlready: "Скрипт Bubblyzer уже установлен в панели Scripts в Affinity!",
-                affTip: "Убедитесь, что Affinity запущен, в настройках включен MCP (Edit → Settings → Model Context Protocol → Enable Affinity MCP; после включения перезапустите Affinity) и в панели Scripts (Window → General → Scripts) создана любая категория.",
-                instrTitle: "Как подготовить и использовать:",
-                stepReq: "<b>Требования в Affinity:</b> включите MCP (<code>Edit → Settings → Model Context Protocol → Enable Affinity MCP</code> — <i>после включения перезапустите Affinity!</i>) и откройте панель скриптов (<code>Window → General → Scripts</code>), создав в ней категорию, если ее нет (например, <i>My Scripts</i>).",
-                step1: "Откройте проект комикса в <b>Affinity by Canva</b>.",
-                step2: "Нажмите кнопку <b>«Установить скрипт в Affinity»</b> выше.",
-                step3: "Запустите скрипт кликом по нему в панели <b>Scripts</b> в Affinity — нейросеть автоматически найдет пузыри и расставит текстовые фреймы!",
+                instrTitle: "Как использовать Bubblyzer:",
+                step1: "<b>Включение скриптов:</b> В настройках Affinity (<code>Edit → Settings → Scripting</code>) включите <b>Enable Affinity Scripting</b>, отметьте <i>Access the file system</i> и <i>Access networks</i>, а в списке <i>File System access</i> добавьте папку <b>Desktop</b> (Рабочий стол).",
+                step2: "<b>Установка скрипта:</b> В Affinity откройте панель <code>Window → Scripting → Scripts Library</code>. В строке категории (например, <i>Default</i>) нажмите меню справа (значок <code>:=</code>) ➔ <b>Import Script...</b> и выберите <code>Bubblyzer.afscript</code> из папки с программой. Нажмите по добавленному скрипту правой кнопкой ➔ <b>Mark as Trusted</b>.",
+                step3: "<b>Распознавание:</b> Откройте проект комикса в Affinity by Canva и запустите скрипт <b>Bubblyzer by BATCOM</b> из панели <b>Scripts</b>.",
                 footerModel: "Модель YOLOv8 ONNX (автор базы: ogkalu)"
             },
             en: {
@@ -258,22 +193,10 @@ HTML_DASHBOARD = """
                 status: "Local server is active and ready",
                 accelLabel: "Hardware Accelerator",
                 portLabel: "API Port",
-                affinityTitle: "Affinity Integration",
-                affinityDesc: "Direct script installation without third-party managers.",
-                btnInstall: "Install script into Affinity",
-                btnRefreshTitle: "Refresh connection status",
-                affChecking: "Checking...",
-                affOnline: "Affinity connected",
-                affInstalled: "Affinity connected (script installed)",
-                affOffline: "Affinity not detected",
-                installSuccess: "Script successfully installed into Affinity Scripts panel!",
-                installAlready: "Bubblyzer script is already installed in Affinity Scripts panel!",
-                affTip: "Make sure Affinity is running, MCP is enabled in Settings (Edit → Settings → Model Context Protocol → Enable Affinity MCP; restart Affinity after enabling), and a category exists in the Scripts panel (Window → General → Scripts).",
-                instrTitle: "How to setup and use:",
-                stepReq: "<b>Affinity Setup:</b> enable MCP server (<code>Edit → Settings → Model Context Protocol → Enable Affinity MCP</code> — <i>restart Affinity after enabling!</i>) and open the Scripts panel (<code>Window → General → Scripts</code>), creating a category if none exists (e.g. <i>My Scripts</i>).",
-                step1: "Open your comic project in <b>Affinity by Canva</b>.",
-                step2: "Click <b>&laquo;Install script into Affinity&raquo;</b> above.",
-                step3: "Run the script by clicking it in the <b>Scripts</b> panel in Affinity — AI will automatically detect speech bubbles and generate text frames!",
+                instrTitle: "How to Use Bubblyzer:",
+                step1: "<b>Enable Scripting:</b> In Affinity settings (<code>Edit → Settings → Scripting</code>), enable <b>Enable Affinity Scripting</b>, check <i>Access the file system</i> and <i>Access networks</i>, and add <b>Desktop</b> under <i>File System access</i>.",
+                step2: "<b>Install Script:</b> In Affinity, open <code>Window → Scripting → Scripts Library</code>. In your category row (e.g. <i>Default</i>), click the menu icon on the right (<code>:=</code>) ➔ <b>Import Script...</b> and select <code>Bubblyzer.afscript</code> from the app folder. Right-click the script ➔ <b>Mark as Trusted</b>.",
+                step3: "<b>Run Detection:</b> Open your comic project in Affinity by Canva and launch <b>Bubblyzer by BATCOM</b> from the <b>Scripts</b> panel.",
                 footerModel: "YOLOv8 ONNX Model (base weights by: ogkalu)"
             }
         };
@@ -289,12 +212,7 @@ HTML_DASHBOARD = """
             document.getElementById('t-status').innerHTML = t.status;
             document.getElementById('t-accel-label').textContent = t.accelLabel;
             document.getElementById('t-port-label').textContent = t.portLabel;
-            document.getElementById('t-affinity-title').textContent = t.affinityTitle;
-            document.getElementById('t-affinity-desc').textContent = t.affinityDesc;
-            document.getElementById('t-btn-install').textContent = t.btnInstall;
-            document.getElementById('btn-refresh-affinity').setAttribute('title', t.btnRefreshTitle);
             document.getElementById('t-instr-title').textContent = t.instrTitle;
-            document.getElementById('t-step-req').innerHTML = t.stepReq;
             document.getElementById('t-step-1').innerHTML = t.step1;
             document.getElementById('t-step-2').innerHTML = t.step2;
             document.getElementById('t-step-3').innerHTML = t.step3;
@@ -308,94 +226,11 @@ HTML_DASHBOARD = """
                 localStorage.setItem('bubblyzer_lang', lang);
                 fetch('/config?save=1&lang=' + lang);
             } catch(e) {}
-
-            checkAffinityStatus();
         }
 
-        async function checkAffinityStatus(manual = false) {
-            const dot = document.getElementById('affinity-dot');
-            const text = document.getElementById('affinity-status-text');
-            const refreshIcon = document.getElementById('icon-refresh');
-            const t = translations[currentLang] || translations.ru;
-
-            if (manual) {
-                text.textContent = t.affChecking;
-                if (refreshIcon) refreshIcon.classList.add('spin');
-            }
-            try {
-                const res = await fetch('/affinity/status');
-                const data = await res.json();
-                dot.className = 'affinity-dot';
-                if (data.connected) {
-                    if (data.installed) {
-                        dot.classList.add('installed');
-                        text.textContent = t.affInstalled;
-                    } else {
-                        dot.classList.add('connected');
-                        text.textContent = t.affOnline;
-                    }
-                } else {
-                    text.textContent = t.affOffline;
-                }
-            } catch(e) {
-                dot.className = 'affinity-dot';
-                text.textContent = t.affOffline;
-            } finally {
-                if (refreshIcon) refreshIcon.classList.remove('spin');
-            }
-        }
-
-        async function installAffinityScript() {
-            const btn = document.getElementById('btn-install');
-            const fb = document.getElementById('affinity-feedback');
-            const t = translations[currentLang] || translations.ru;
-            btn.disabled = true;
-            fb.style.display = 'block';
-            fb.className = 'affinity-feedback info';
-            fb.textContent = t.affChecking;
-
-            try {
-                const res = await fetch('/affinity/install', { method: 'POST' });
-                const data = await res.json();
-                if (data.success) {
-                    if (data.already_installed) {
-                        fb.className = 'affinity-feedback info';
-                        fb.textContent = t.installAlready;
-                    } else {
-                        fb.className = 'affinity-feedback success';
-                        fb.textContent = t.installSuccess;
-                    }
-                    checkAffinityStatus();
-                } else {
-                    const isAlready = (data.error && data.error.toLowerCase().includes('already exists'));
-                    if (isAlready) {
-                        fb.className = 'affinity-feedback info';
-                        fb.textContent = t.installAlready;
-                        checkAffinityStatus();
-                    } else {
-                        fb.className = 'affinity-feedback error';
-                        fb.innerHTML = (data.error || 'Failed') + '<br><small style="opacity:0.9">' + t.affTip + '</small>';
-                    }
-                }
-            } catch(e) {
-                const isAlready = (e.message && e.message.toLowerCase().includes('already exists'));
-                if (isAlready) {
-                    fb.className = 'affinity-feedback info';
-                    fb.textContent = t.installAlready;
-                    checkAffinityStatus();
-                } else {
-                    fb.className = 'affinity-feedback error';
-                    fb.innerHTML = e.message + '<br><small style="opacity:0.9">' + t.affTip + '</small>';
-                }
-            } finally {
-                btn.disabled = false;
-            }
-        }
-
-        // Initialize language and check status
+        // Initialize language
         const initialLang = localStorage.getItem('bubblyzer_lang') || '{{ current_lang }}' || 'ru';
         setLanguage(initialLang);
-        setInterval(() => checkAffinityStatus(false), 12000);
     </script>
 </body>
 </html>
@@ -510,22 +345,18 @@ def detect():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/affinity/status', methods=['GET'])
-def affinity_status_endpoint():
-    res = check_affinity_status()
-    return jsonify(res)
-
-@app.route('/affinity/install', methods=['POST'])
-def affinity_install_endpoint():
-    res = install_bubblyzer_script()
-    status_code = 200 if res.get("success") else 500
-    return jsonify(res), status_code
-
-@app.route('/affinity/execute', methods=['POST'])
-def affinity_execute_endpoint():
-    res = execute_bubblyzer_script()
-    status_code = 200 if res.get("success") else 500
-    return jsonify(res), status_code
+@app.route('/download/afscript', methods=['GET'])
+def download_afscript():
+    search_paths = [
+        os.path.join(BASE_DIR, "affinity", "Bubblyzer.afscript"),
+        os.path.join(ROOT_DIR, "affinity", "Bubblyzer.afscript"),
+        os.path.join(os.getcwd(), "affinity", "Bubblyzer.afscript"),
+        os.path.join(os.path.dirname(sys.executable), "Bubblyzer.afscript"),
+    ]
+    for p in search_paths:
+        if os.path.exists(p):
+            return send_file(p, as_attachment=True, download_name="Bubblyzer.afscript")
+    return "Bubblyzer.afscript not found", 404
 
 def start_server(processor, port=DEFAULT_PORT):
     global processor_instance

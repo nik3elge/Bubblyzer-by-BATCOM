@@ -47,7 +47,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path dist/Bubblyzer-Windows
           Copy-Item dist/Bubblyzer.exe dist/Bubblyzer-Windows/
-          Copy-Item affinity/affinity_bubblyzer.js dist/Bubblyzer-Windows/
+          Copy-Item affinity/Bubblyzer.afscript dist/Bubblyzer-Windows/
           Compress-Archive -Path dist/Bubblyzer-Windows/* -DestinationPath dist/Bubblyzer-Windows-x64.zip
 
       - name: Upload Windows Artifact
@@ -92,7 +92,7 @@ jobs:
             --paths="src" \
             --icon="assets/app_icon.png" \
             --add-data="models/comic-speech-bubble-detector.onnx:models" \
-            --add-data="affinity/affinity_bubblyzer.js:affinity" \
+            --add-data="affinity/Bubblyzer.afscript:affinity" \
             --add-data="assets/*:assets" \
             --exclude-module=torch \
             --exclude-module=torchvision \
@@ -119,7 +119,7 @@ jobs:
         run: |
           mkdir -p dist/Bubblyzer-macOS
           cp -R dist/Bubblyzer.app dist/Bubblyzer-macOS/
-          cp affinity/affinity_bubblyzer.js dist/Bubblyzer-macOS/
+          cp affinity/Bubblyzer.afscript dist/Bubblyzer-macOS/
           cd dist && zip -r Bubblyzer-macOS.zip Bubblyzer-macOS
 
       - name: Upload macOS Artifact
@@ -153,6 +153,7 @@ jobs:
           files: |
             ./release-assets/Bubblyzer-Windows-x64.zip
             ./release-assets/Bubblyzer-macOS.zip
+            affinity/Bubblyzer.afscript
           draft: false
           prerelease: false
           generate_release_notes: true
